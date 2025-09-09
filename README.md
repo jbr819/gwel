@@ -5,17 +5,25 @@ The *gwel* Python module provides a framework for handling large image datasets 
 
 Maintained and created by Jack Rich (j.b.c.rich@pgr.reading.ac.uk), Department of Crop Science, School of Agriculture, Policy, and Development; University of Reading as part of my PhD research. 
 
+### 0 Install via PyPI
 
-## Installation
+For a quick installation of the latest stable version ( [conda](https://docs.anaconda.com/miniconda/install/) package manager recomended):
+
+```bash
+pip install gwel
+```
+
+If installing from source following these directions:
 
 ### 1 Clone this repo
+
 ```bash
-git clone -
+git clone https://gitlab.act.reading.ac.uk/bw832080/gwel.git
 cd gwel
 ```
 
-
 ### 2 Create Virtual Environment
+
 With [conda](https://docs.anaconda.com/miniconda/install/) (recommended):
 
 ```bash
@@ -24,46 +32,49 @@ conda activate gwel
 ```
 
 With venv (Linux and macOS):
+
 ```bash
-python3.10 -m venv gwel
+python3.10 -m venv gwel 
 source gwel/bin/activate
 pip install -r requirements.txt
 ```
 
 With venv (Windows):
+
 ```powershell
-python3.10 -m venv gwel
+python3.10 -m venv gwel 
 gwel\Scripts\activate 
 pip install -r requirements.txt
 ```
 
-
 ### 3 Install gwel
+
 ```bash
 pip install -e .
 ```
-## Basic Usage
 
-Initiate an image dataset:
-```python
-from gwel import ImageDataset
-dataset = ImageDataset('path/to/directory/of/images')
-```
-Check status of a dataset:
-```python
-dataset.status()
-```
+## Command Line Interface
 
-Resize images (creates resized copies of images in .gwel hidden directory):
-```python
-dataset.resize_images()
+Verify gwel installation:
+
+```bash
+gwel --version
+GWEL CLI version 0.0.1a0
+```
+To see gwel subcommands: 
+```bash
+gwel --help
 ```
 
-View images:
-```python
-dataset.view_images()
+Navigate to images directory and view images with:
+```bash
+gwel view
+#to navigate to the next or previous images use the 'n' and 'p' keys respectively.
+#press the 'q' key to quit. 
+#pressing the 'f' key will flag images.
 ```
-For detailed tutorials, visit [the wiki](https://gitlab.act.reading.ac.uk/bw832080/dph-reading/-/wikis/home).
+
+For detailed tutorials, visit [the wiki]().
 
 ## Acknowledgments
 This research is funded by the [Biotechnology and Biological Sciences Research Council (BBSRC)](https://www.ukri.org/councils/bbsrc/), part of [UK Research and Innovation (UKRI)](https://www.ukri.org/), through the [FoodBioSystems Doctoral Training Partnership (DTP)](https://research.reading.ac.uk/foodbiosystems/) as part of my PhD project at the [University of Reading](https://www.reading.ac.uk/).
