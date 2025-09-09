@@ -1,0 +1,10 @@
+# Python version: 3.10
+numpy 
+pandas
+scipy
+opencv-python
+pillow
+tqdm
+pycocotools
+colorama
+typer

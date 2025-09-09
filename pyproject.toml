@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gwel"
+version = "0.0.1a0"
+description = "A computer vision package handling large image datasets and using neural networks"
+authors = [{ name = "Jack Rich", email = "j.b.c.rich@pgr.reading.ac.uk"}]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "typer[all]",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+gwel = "gwel.cli:app"
+
