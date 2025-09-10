@@ -3,7 +3,7 @@ The *gwel* Python module provides a framework for handling large image datasets 
 
 ![flowchart](flowchart.png)
 
-Maintained and created by Jack Rich (j.b.c.rich@pgr.reading.ac.uk), Department of Crop Science, School of Agriculture, Policy, and Development; University of Reading as part of my PhD research. 
+Maintained and created by Jack Rich, Department of Crop Science, School of Agriculture, Policy, and Development; University of Reading as part of my PhD research. 
 
 ### 0 Install via PyPI
 
