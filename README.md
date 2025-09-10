@@ -57,7 +57,7 @@ Verify gwel installation:
 
 ```bash
 gwel --version
-GWEL CLI version 0.0.1a0
+GWEL CLI version x.y.z
 ```
 To see gwel subcommands: 
 ```bash
