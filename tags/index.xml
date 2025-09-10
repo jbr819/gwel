@@ -2,10 +2,10 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on GWEL</title>
-    <link>http://localhost:37507/gwel/tags/</link>
+    <link>https://jbr819.github.io/gwel/tags/</link>
     <description>Recent content in Tags on GWEL</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <atom:link href="http://localhost:37507/gwel/tags/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://jbr819.github.io/gwel/tags/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

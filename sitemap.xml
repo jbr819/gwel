@@ -2,24 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:37507/gwel/github/</loc>
+    <loc>https://jbr819.github.io/gwel/github/</loc>
   </url><url>
-    <loc>http://localhost:37507/gwel/categories/</loc>
+    <loc>https://jbr819.github.io/gwel/categories/</loc>
   </url><url>
-    <loc>http://localhost:37507/gwel/contact/</loc>
+    <loc>https://jbr819.github.io/gwel/contact/</loc>
   </url><url>
-    <loc>http://localhost:37507/gwel/</loc>
+    <loc>https://jbr819.github.io/gwel/</loc>
   </url><url>
-    <loc>http://localhost:37507/gwel/factors/</loc>
+    <loc>https://jbr819.github.io/gwel/factors/</loc>
   </url><url>
-    <loc>http://localhost:37507/gwel/imagedataset/</loc>
+    <loc>https://jbr819.github.io/gwel/imagedataset/</loc>
   </url><url>
-    <loc>http://localhost:37507/gwel/readme/</loc>
+    <loc>https://jbr819.github.io/gwel/readme/</loc>
   </url><url>
-    <loc>http://localhost:37507/gwel/detection/</loc>
+    <loc>https://jbr819.github.io/gwel/detection/</loc>
   </url><url>
-    <loc>http://localhost:37507/gwel/segmentation/</loc>
+    <loc>https://jbr819.github.io/gwel/segmentation/</loc>
   </url><url>
-    <loc>http://localhost:37507/gwel/tags/</loc>
+    <loc>https://jbr819.github.io/gwel/tags/</loc>
   </url>
 </urlset>
