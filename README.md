@@ -1,9 +1,7 @@
 # Gwel
-The *gwel* Python module provides a framework for handling large image datasets and using neural networks for computer vision tasks in crop science research. The module supports object instance detection and semantic segmentation. The flowchart below outlines the workflows that can be achieved using this module. 
+The *gwel* Python module provides a framework for handling large image datasets and using neural networks for computer vision tasks in crop science research. The module supports object instance detection and semantic segmentation.
 
-![flowchart](flowchart.png)
-
-Maintained and created by Jack Rich (j.b.c.rich@pgr.reading.ac.uk), Department of Crop Science, School of Agriculture, Policy, and Development; University of Reading as part of my PhD research. 
+Maintained and created by Jack Rich, Department of Crop Science, School of Agriculture, Policy, and Development; University of Reading as part of my PhD research. 
 
 ### 0 Install via PyPI
 
