@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+
+<script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><style>
+ 
+.menu {
+  text-align: center;           
+  padding: 0;
+  margin: 0;
+  list-style: none;             
+}
+
+.menu li {
+  display: inline-block;        
+  margin: 0 10px;               
+}
+
+.menu a {
+  font-size: 1.5rem;
+  text-decoration: none;
+  background: #eee;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: inline-block;
+  color: #333;
+  transition: background 0.2s, color 0.2s;
+}
+
+.menu a:hover {
+  background: #ddd;
+  color: #0077cc;
+}
+</style>
+
+
+
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Semantic Segmentation with Pre-trained Models | GWEL</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Gwel</a></li>
+      
+      <li><a href="/readme">Install</a></li>
+      
+      <li><a href="/contact">Contact</a></li>
+      
+      <li><a href="/github">Github</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Semantic Segmentation with Pre-trained Models</span></h1>
+
+
+</div>
+
+<main>
+<p>This tutorial builds on <a href="/detection">the previous tutorial</a> that introduced the <code>Detector</code> class for object and instance detection. In contrast to object detection, which focuses on predicting bounding boxes, and instance segmentation, which identifies individual object masks, <em>semantic segmentation</em> classifies every pixel in an image based on its semantic meaning. It does not differentiate between separate instances of the same class but instead assigns a class label to each pixel. In this module, this functionality is encapsulated by the <code>Segmenter</code> abstract class, which provides a unified interface for performing semantic segmentation on image data.</p>
+<p>Each subclass of the <code>Segmenter</code> class provides its own implementation of the <code>segment</code> method, tailored to the specific framework and architecture used an underlying neural network. This allows for flexibility in supporting various detection models while maintaining a consistent interface.</p>
+<p>Currently implemented <code>Segmenter</code> subclasses includes a <code>UNET</code> style architecture based on the <a href="https://arxiv.org/pdf/1505.04597">UNET</a> (object detection) architecture. Additionally, the <code>LociSegmenter</code> subclass segments an image as the loci of pixels centered on detections obtained through a <code>Detector</code> instance.</p>
+<p>An architecture can be trained to detect any class of object or instance by adjusting its weights. These model weights are learned by optimizing a loss function on training data - specifically, images paired with corresponding labels. The resulting weights are typically saved to a file, which can later be loaded for inference. This tutorial assumes that the model weights have already been calculated and are available for the architecture being used. If you have do not have model weights, you may wish to follow the tutorial on model training for guidance on how to obtain them.</p>
+<p>The examples below demonstrate how to use the <code>UNET</code> and <code>LociSegmenter</code> classes for semantic segmentation, respectively.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># UNET</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> gwel.networks.UNET <span style="color:#f92672">import</span> UNET
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> gwel.networks.UNET <span style="color:#f92672">import</span> UNet
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>classes <span style="color:#f92672">=</span> [ <span style="color:#e6db74">&#39;class_name_1&#39;</span>,<span style="color:#e6db74">&#39;class_name_2&#39;</span>,<span style="color:#f92672">...</span>,<span style="color:#e6db74">&#39;class_name_n&#39;</span>]
+</span></span><span style="display:flex;"><span>unet <span style="color:#f92672">=</span> UNet(in_channels <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>, out_channels <span style="color:#f92672">=</span> len(classes))
+</span></span><span style="display:flex;"><span>weights<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;path/to/model/weights&#34;</span>
+</span></span><span style="display:flex;"><span>segmenter <span style="color:#f92672">=</span> UNET(unet, weights, patch_size<span style="color:#f92672">=</span><span style="color:#ae81ff">256</span>, channels <span style="color:#f92672">=</span> classes)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>segment(segmenter)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#LociSegmenter with YOLOv8 Detector</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> gwel.networks.loci <span style="color:#f92672">import</span> LociSegmenter
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> gwel.networks.YOLOv8 <span style="color:#f92672">import</span> YOLOv8
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>model_weights_path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;path/to/model/weights&#39;</span>
+</span></span><span style="display:flex;"><span>detector <span style="color:#f92672">=</span> YOLOv8(weights <span style="color:#f92672">=</span> model_path)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>h <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>n <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>segmenter <span style="color:#f92672">=</span> LociSegmenter(detector, bandwidth <span style="color:#f92672">=</span> h, kernel_size <span style="color:#f92672">=</span> n)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>segment(segmenter)
+</span></span></code></pre></div><p>To visualize the segmentation, create a <code>Viewer</code> instance and set its <code>mode</code> attribute to <code>'segmentation'</code>. You may also want to adjust the <code>contour_thickness</code> attribute.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> gwel.viewer <span style="color:#f92672">import</span> Viewer
+</span></span><span style="display:flex;"><span>viewer <span style="color:#f92672">=</span> Viewer(dataset,max_pixels<span style="color:#f92672">=</span><span style="color:#ae81ff">1500</span>)
+</span></span><span style="display:flex;"><span>viewer<span style="color:#f92672">.</span>mode<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;segmentation&#34;</span>
+</span></span><span style="display:flex;"><span>viewer<span style="color:#f92672">.</span>contour_thickness <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>
+</span></span><span style="display:flex;"><span>viewer<span style="color:#f92672">.</span>open()
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#to navigate to the next or previous images use the &#39;n&#39; and &#39;p&#39; keys respectively.</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#press the &#39;q&#39; key to quit. </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#pressing the &#39;f&#39; key will flag images, see earlier tutorials for a recap on flagging.</span>
+</span></span></code></pre></div><p>By default, the <code>ImageDataset.segment</code> method automatically caches the segmentation by storing run length encoded binary arrays in COCO json format at <code>'.dph-reading/masks.json'</code> inside the images directory. When the <code>segment</code> method is called a second time, it will automatically read this file without executing the model, unless the <code>use_saved</code> optional argument is set to <code>False</code>. Additionally, if you do not wish to cache or overwrite an existing <code>masks.json</code> , set the <code>write</code> optional argument to <code>False</code> when calling the <code>segment</code> method.</p>
+
+</main>
+
+  <footer>
+  
+  
+  <hr/>
+  © 2025 Jack Rich. Department of Crop Science, University of Reading. Contact: <!-- raw HTML omitted --><a href="mailto:j.b.c.rich@pgr.reading.ac.uk">j.b.c.rich@pgr.reading.ac.uk</a><!-- raw HTML omitted -->
+  
+  </footer>
+  </body>
+</html>
+

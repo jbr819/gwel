@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+
+<script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><style>
+ 
+.menu {
+  text-align: center;           
+  padding: 0;
+  margin: 0;
+  list-style: none;             
+}
+
+.menu li {
+  display: inline-block;        
+  margin: 0 10px;               
+}
+
+.menu a {
+  font-size: 1.5rem;
+  text-decoration: none;
+  background: #eee;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: inline-block;
+  color: #333;
+  transition: background 0.2s, color 0.2s;
+}
+
+.menu a:hover {
+  background: #ddd;
+  color: #0077cc;
+}
+</style>
+
+
+
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Handling Image Datasets with the ImageDataset Class | GWEL</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Gwel</a></li>
+      
+      <li><a href="/readme">Install</a></li>
+      
+      <li><a href="/contact">Contact</a></li>
+      
+      <li><a href="/github">Github</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Handling Image Datasets with the ImageDataset Class</span></h1>
+
+
+</div>
+
+<main>
+<p>This tutorial provides an introduction to using the <code>ImageDataset</code> class, which is central to handling collections of images within the gwel package.</p>
+<p>Before you get started, you&rsquo;ll need to install the package in a Python environment. To do so, follow the installation instructions provided in the README.md. After installation, activate your Python environment and open your preferred IDE or however you may choose to write python scipts. If you&rsquo;re looking for recommendations, <a href="https://www.spyder-ide.org/">Spyder</a> or <a href="https://code.visualstudio.com/">VScode</a> are good options for data science and image processing tasks.</p>
+<p>To check the installation import the <code>ImageDataset</code> class:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> gwel <span style="color:#f92672">import</span> ImageDataset
+</span></span></code></pre></div><p>If the import fails, ensure that you have activated the correct Python environment. If the import still fails, try reinstalling the package by following the installation instructions in the README.md file.</p>
+<p>Now that the import has been successful, you can instantiate an <code>ImageDataset</code> object by providing the path to your directory of images. You may have a collection of images to follow this tutorial with. However, if not, you are invited to use the example images provided in the project repository to get started. The collection of images should take the form of a single directory with the collection of image files inside.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>dataset <span style="color:#f92672">=</span> ImageDataset(<span style="color:#e6db74">&#39;path/to/directory/of/images&#39;</span>)
+</span></span></code></pre></div><p>Access the list of image names with the <code>images</code> attribute:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>images_list <span style="color:#f92672">=</span> dataset<span style="color:#f92672">.</span>images
+</span></span></code></pre></div><p>If you would like to check that each of the images is readable (not corrupt) use the following method. This will print a warning message to the terminal indicting the names of any images which can not be be opened and are likely corrupted.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>check_images()
+</span></span></code></pre></div><p>To view the images use:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> gwel.viewer <span style="color:#f92672">import</span> Viewer
+</span></span><span style="display:flex;"><span>viewer <span style="color:#f92672">=</span> Viewer(dataset,max_pixels<span style="color:#f92672">=</span><span style="color:#ae81ff">1500</span>) <span style="color:#75715e"># optional max_pixels argument</span>
+</span></span><span style="display:flex;"><span>viewer<span style="color:#f92672">.</span>open()
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#to navigate to the next or previous images use the &#39;n&#39; and &#39;p&#39; keys respectively.</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#press the &#39;q&#39; key to quit. </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#pressing the &#39;f&#39; key will flag images, more on this later.</span>
+</span></span></code></pre></div><p>When working with high resolution images it often is more practical to work with resized images of a lower resolution. Use the following method to create resized copies of the images saved in to the hidden &lsquo;.dph-reading&rsquo; directory.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>resize_images()
+</span></span></code></pre></div><p>Use the following method to view the status of <code>dataset</code>. This will print text to the terminal summarizing the attributes of the object <code>dataset</code> If you have previously used the <code>resize_images</code> method this will be noted in the printed text.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>status()
+</span></span></code></pre></div><p>When viewing images, it is possible to flag images by pressing the &lsquo;f&rsquo; key. Use the <code>flagged</code> attribute to access the list of images which have been flagged.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>flagged_images <span style="color:#f92672">=</span> dataset<span style="color:#f92672">.</span>flagged
+</span></span></code></pre></div><p>To sample a random subset of the image collection and copy the images to another directory, use the <code>sample</code> method. To include the set of flagged images in the sample set the optional argument <code>flagged = True</code> by default it is set to <code>False</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>sample_size <span style="color:#f92672">=</span> N <span style="color:#75715e"># an integer</span>
+</span></span><span style="display:flex;"><span>sample_dir <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;path/where/sample/images/will/be/copied/into&#39;</span>
+</span></span><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>sample(dir <span style="color:#f92672">=</span> sample_dir, N <span style="color:#f92672">=</span> sample_size, flagged<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span></code></pre></div><p>Sometimes it is required to flip images by 180°. To do this first view the images and flag images that are require flipping. Then use the <code>flip</code> method to flip them. Warning: the flipped image will be rewritten over the non flipped image file, having a backup of raw image data is recommended.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>flip()
+</span></span></code></pre></div><p>If you have finished this tutorial and would like to continue, the next tutorial is on <a href="/factors">handling image datasets with factors</a>.</p>
+
+</main>
+
+  <footer>
+  
+  
+  <hr/>
+  © 2025 Jack Rich. Department of Crop Science, University of Reading. Contact: <!-- raw HTML omitted --><a href="mailto:j.b.c.rich@pgr.reading.ac.uk">j.b.c.rich@pgr.reading.ac.uk</a><!-- raw HTML omitted -->
+  
+  </footer>
+  </body>
+</html>
+

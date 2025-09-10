@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+
+<script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><style>
+ 
+.menu {
+  text-align: center;           
+  padding: 0;
+  margin: 0;
+  list-style: none;             
+}
+
+.menu li {
+  display: inline-block;        
+  margin: 0 10px;               
+}
+
+.menu a {
+  font-size: 1.5rem;
+  text-decoration: none;
+  background: #eee;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: inline-block;
+  color: #333;
+  transition: background 0.2s, color 0.2s;
+}
+
+.menu a:hover {
+  background: #ddd;
+  color: #0077cc;
+}
+</style>
+
+
+
+<html lang="en-us">
+  <head>
+	<meta name="generator" content="Hugo 0.149.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gwel Wiki | GWEL</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Gwel</a></li>
+      
+      <li><a href="/readme">Install</a></li>
+      
+      <li><a href="/contact">Contact</a></li>
+      
+      <li><a href="/github">Github</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+
+
+
+<p>Welcome to the <strong>Gwel Wiki</strong>!</p>
+<p>The <em>gwel</em> Python module provides a framework for handling large image datasets and using neural networks for computer vision tasks for scientific research. The module supports object instance detection and semantic segmentation. The flowchart below outlines the workflows that can be achieved using this module.</p>
+<p><img src="https://gitlab.act.reading.ac.uk/bw832080/dph-reading/-/raw/main/flowchart.png?inline=false" alt="flowchart">
+This wiki compiles a series of tutorials designed to guide you through the features and functionality of the module. For the best learning experience, start with the first tutorial and proceed sequentially.</p>
+<p>The name <strong>Gwel</strong> is derived from <strong>Gwelas</strong> (Cornish: <em>to see</em>).</p>
+<p>Maintained and created by Jack Rich (<a href="mailto:j.b.c.rich@pgr.reading.ac.uk">j.b.c.rich@pgr.reading.ac.uk</a>), Department of Crop Science, School of Agriculture, Policy, and Development; University of Reading as part of my PhD research.</p>
+<hr>
+<h2 id="-tutorials-overview">📘 Tutorials Overview</h2>
+<h3 id="1-introduction-and-installation">1. <a href="readme">Introduction and Installation</a></h3>
+<blockquote>
+<p>This tutorial provides a brief introduction to the package and includes the installation guide found in the project&rsquo;s <a href="https://gitlab.act.reading.ac.uk/bw832080/gwel/-/blob/main/README.md?ref_type=heads"><code>README.md</code></a>.</p></blockquote>
+<hr>
+<h3 id="2-handling-image-datasets-using-the-imagedataset-class">2. <a href="imagedataset">Handling Image Datasets using the ImageDataset Class</a></h3>
+<blockquote>
+<p>Learn to handle collections of images with the <code>ImageDataset</code> class. Key operations include resizing images, taking samples, orienting, verifying integrity, and viewing images.</p></blockquote>
+<hr>
+<h3 id="3-handling-image-datasets-with-factors">3. <a href="factors">Handling Image Datasets with Factors</a></h3>
+<blockquote>
+<p>Add factors (additional variables associated with images, e.g., time or treatment) to the <code>ImageDataset</code> class. Efficiently manage multiple factors in large image collections.</p></blockquote>
+<hr>
+<h3 id="4-object-and-instance-detection-with-pre-trained-models">4. <a href="detection">Object and Instance Detection with Pre-trained Models</a></h3>
+<blockquote>
+<p>Introduces the <code>Detector</code> class to run pre-trained object detection models and store results in an <code>ImageDataset</code>. Covers visualization, exporting results in COCO JSON format, and cropping images to create individual object datasets.</p></blockquote>
+<hr>
+<h3 id="5-semantic-segmentation-with-pre-trained-models">5. <a href="segmentation">Semantic Segmentation with Pre-trained Models</a></h3>
+<blockquote>
+<p>Introduces the <code>Segmenter</code> class to run pre-trained image segmentation models. Covers visualization and exporting segmentation results in COCO JSON format.</p></blockquote>
+<hr>
+<h3 id="6-image-annotation-and-model-training">6. <a href="anno-train">Image Annotation and Model Training</a></h3>
+<blockquote>
+<p>Learn to annotate images using <a href="https://docs.cvat.ai/docs/getting_started/overview/">CVAT</a>, then train object detection or segmentation models. Includes tips for leveraging GPU clusters for faster training.</p></blockquote>
+<hr>
+<h2 id="-tips-for-using-this-wiki">⚡ Tips for Using This Wiki</h2>
+<ul>
+<li>Follow tutorials <strong>in order</strong> for the best learning experience.</li>
+<li>Experiment with sample datasets before using your own.</li>
+<li>Use the links above to jump directly to a tutorial of interest.</li>
+</ul>
+<h2 id="acknowledgments">Acknowledgments</h2>
+<p>This research is funded by the <a href="https://www.ukri.org/councils/bbsrc/">Biotechnology and Biological Sciences Research Council (BBSRC)</a>, part of <a href="https://www.ukri.org/">UK Research and Innovation (UKRI)</a>, through the <a href="https://research.reading.ac.uk/foodbiosystems/">FoodBioSystems Doctoral Training Partnership (DTP)</a> as part of my PhD project at the <a href="https://www.reading.ac.uk/">University of Reading</a>.</p>
+
+
+<ul>
+  
+  
+  
+</ul>
+
+  <footer>
+  
+  
+  <hr/>
+  © 2025 Jack Rich. Department of Crop Science, University of Reading. Contact: <!-- raw HTML omitted --><a href="mailto:j.b.c.rich@pgr.reading.ac.uk">j.b.c.rich@pgr.reading.ac.uk</a><!-- raw HTML omitted -->
+  
+  </footer>
+  </body>
+</html>
+

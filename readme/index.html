@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><style>
+ 
+.menu {
+  text-align: center;           
+  padding: 0;
+  margin: 0;
+  list-style: none;             
+}
+
+.menu li {
+  display: inline-block;        
+  margin: 0 10px;               
+}
+
+.menu a {
+  font-size: 1.5rem;
+  text-decoration: none;
+  background: #eee;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: inline-block;
+  color: #333;
+  transition: background 0.2s, color 0.2s;
+}
+
+.menu a:hover {
+  background: #ddd;
+  color: #0077cc;
+}
+</style>
+
+
+
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Installation and Command Line Interface | GWEL</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Gwel</a></li>
+      
+      <li><a href="/readme">Install</a></li>
+      
+      <li><a href="/contact">Contact</a></li>
+      
+      <li><a href="/github">Github</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Installation and Command Line Interface</span></h1>
+
+
+</div>
+
+<main>
+<h3 id="0-install-via-pypi">0 Install via PyPI</h3>
+<p>For a quick installation of the latest stable version ( <a href="https://docs.anaconda.com/miniconda/install/">conda</a> package manager recomended):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pip install gwel
+</span></span></code></pre></div><p>If installing from source following these directions:</p>
+<h3 id="1-clone-this-repo">1 Clone this repo</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git clone https://gitlab.act.reading.ac.uk/bw832080/gwel.git
+</span></span><span style="display:flex;"><span>cd gwel
+</span></span></code></pre></div><h3 id="2-create-virtual-environment">2 Create Virtual Environment</h3>
+<p>With <a href="https://docs.anaconda.com/miniconda/install/">conda</a> (recommended):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>conda env create -f environment.yml
+</span></span><span style="display:flex;"><span>conda activate gwel
+</span></span></code></pre></div><p>With venv (Linux and macOS):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>python3.10 -m venv gwel 
+</span></span><span style="display:flex;"><span>source gwel/bin/activate
+</span></span><span style="display:flex;"><span>pip install -r requirements.txt
+</span></span></code></pre></div><p>With venv (Windows):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>python3.10 -m venv gwel 
+</span></span><span style="display:flex;"><span>gwel\Scripts\activate 
+</span></span><span style="display:flex;"><span>pip install -r requirements.txt
+</span></span></code></pre></div><h3 id="3-install-gwel">3 Install gwel</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pip install -e .
+</span></span></code></pre></div><h2 id="command-line-interface">Command Line Interface</h2>
+<p>Verify gwel installation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>gwel --version
+</span></span><span style="display:flex;"><span>GWEL CLI version 0.0.1a0
+</span></span></code></pre></div><p>To see gwel subcommands:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>gwel --help
+</span></span></code></pre></div><p>Navigate to images directory and view images with:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>gwel view
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#to navigate to the next or previous images use the &#39;n&#39; and &#39;p&#39; keys respectively.</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#press the &#39;q&#39; key to quit. </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#pressing the &#39;f&#39; key will flag images.</span>
+</span></span></code></pre></div><p>For detailed tutorials, visit <a href="/">the wiki</a>.</p>
+
+</main>
+
+  <footer>
+  
+  
+  <hr/>
+  © 2025 Jack Rich. Department of Crop Science, University of Reading. Contact: <!-- raw HTML omitted --><a href="mailto:j.b.c.rich@pgr.reading.ac.uk">j.b.c.rich@pgr.reading.ac.uk</a><!-- raw HTML omitted -->
+  
+  </footer>
+  </body>
+</html>
+

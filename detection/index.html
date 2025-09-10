@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><style>
+ 
+.menu {
+  text-align: center;           
+  padding: 0;
+  margin: 0;
+  list-style: none;             
+}
+
+.menu li {
+  display: inline-block;        
+  margin: 0 10px;               
+}
+
+.menu a {
+  font-size: 1.5rem;
+  text-decoration: none;
+  background: #eee;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: inline-block;
+  color: #333;
+  transition: background 0.2s, color 0.2s;
+}
+
+.menu a:hover {
+  background: #ddd;
+  color: #0077cc;
+}
+</style>
+
+
+
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Object and Instance Detection with Pre-trained Models | GWEL</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Gwel</a></li>
+      
+      <li><a href="/readme">Install</a></li>
+      
+      <li><a href="/contact">Contact</a></li>
+      
+      <li><a href="/github">Github</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Object and Instance Detection with Pre-trained Models</span></h1>
+
+
+</div>
+
+<main>
+<p>This module is primarily designed to facilitate the use of neural networks for computer vision tasks on image data. This particular tutorial focuses on object and instance detection.</p>
+<p>Object and instance detection involves identifying and localizing objects within an image. Typically, object detection refers to predicting both the class and the bounding box of each object. In contrast, instance segmentation goes a step further by also determining the precise boundaries (masks) of each object, allowing for pixel-level differentiation between individual instances.</p>
+<p>Both instance and object detection are handled by the abstract class <code>Detector</code>. An instance of this class provides a <code>detect</code> method, which accepts an image as input and returns a list of polygons representing the detected objects. Each polygon is defined as an ordered list of (x, y) coordinates, where the order reflects the connectivity of the polygon’s edges.</p>
+<p>Each subclass of the <code>Detector</code> class provides its own implementation of the <code>detect</code> method, tailored to the specific framework and architecture used by the underlying neural network. This allows for flexibility in supporting various detection models while maintaining a consistent interface.</p>
+<p>Currently, implemented <code>Detector</code> subclasses include <code>YOLOv8</code> and <code>Mask2Former</code> these are based on the <a href="https://yolov8.com/">YOLOv8</a> (object detection) and <a href="https://github.com/facebookresearch/Mask2Former">Mask2Former</a> (instance segmentation) architectures respectively.</p>
+<p>An architecture can be trained to detect any class of object or instance by adjusting its weights. These model weights are learned by optimizing a loss function on training data - specifically, images paired with corresponding labels. The resulting weights are typically saved to a file, which can later be loaded for inference. This tutorial assumes that the model weights have already been calculated and are available for the architecture being used. If you have do not have model weights, you may wish to follow the tutorial on model training for guidance on how to obtain them.</p>
+<p>The examples below demonstrate how to use the <code>YOLOv8</code> and <code>Mask2Former</code> classes for object detection and instance segmentation, respectively.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># YOLOv8</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> gwel.networks.YOLOv8 <span style="color:#f92672">import</span> YOLOv8
+</span></span><span style="display:flex;"><span>model_weights_path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;path/to/model/weights&#39;</span>
+</span></span><span style="display:flex;"><span>detector <span style="color:#f92672">=</span> YOLOv8(weights <span style="color:#f92672">=</span> model_path)
+</span></span><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>detect(detector)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Mask2Former</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> gwel.networks.Mask2Former <span style="color:#f92672">import</span> Mask2Former
+</span></span><span style="display:flex;"><span>model_weights_path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;path/to/model/weights&#39;</span>
+</span></span><span style="display:flex;"><span>detector <span style="color:#f92672">=</span> Mask2Former(weights <span style="color:#f92672">=</span> model_path)
+</span></span><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>detect(detector)
+</span></span></code></pre></div><p>The detections are stored in the <code>object_detections</code> attribute of a <code>ImageDataset</code> instance as a dictionary, where each key is an image name and the corresponding value is a list of polygons representing the detected objects.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>detections <span style="color:#f92672">=</span> dataset<span style="color:#f92672">.</span>object_detections
+</span></span></code></pre></div><p>To visualize the detections, create a <code>Viewer</code> instance and set its <code>mode</code> attribute to <code>'instance'</code>. You may also want to adjust the <code>contour_thickness</code> attribute.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> gwel.viewer <span style="color:#f92672">import</span> Viewer
+</span></span><span style="display:flex;"><span>viewer <span style="color:#f92672">=</span> Viewer(dataset,max_pixels<span style="color:#f92672">=</span><span style="color:#ae81ff">1500</span>)
+</span></span><span style="display:flex;"><span>viewer<span style="color:#f92672">.</span>mode<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;instance&#34;</span>
+</span></span><span style="display:flex;"><span>viewer<span style="color:#f92672">.</span>contour_thickness <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>
+</span></span><span style="display:flex;"><span>viewer<span style="color:#f92672">.</span>open()
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#to navigate to the next or previous images use the &#39;n&#39; and &#39;p&#39; keys respectively.</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#press the &#39;q&#39; key to quit. </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#pressing the &#39;f&#39; key will flag images, see earlier tutorials for a recap on flagging.</span>
+</span></span></code></pre></div><p>By default, the <code>ImageDataset.detect</code> method automatically caches the object detections by storing them in COCO json format at <code>'.dph-reading/coco_detections.json'</code> inside the images directory. When the <code>detect</code> method is called a second time, it will automatically read this file without executing the model, unless the <code>use_saved</code> optional argument is set to <code>False</code>. Additionally, if you do not wish to cache or overwrite an existing <code>coco_detections.json</code> , set the <code>write</code> optional argument to <code>False</code> when calling the <code>detect</code> method.</p>
+<h3 id="tiling-for-small-object-detection">Tiling for Small Object Detection</h3>
+<p>When detecting smaller objects, models generally require higher-resolution images to achieve accurate results. However, processing such images directly can exceed memory limitations.</p>
+<p>To address this, a technique known as <em>tiling</em> or <em>patching</em> is used. This involves splitting a high-resolution image into smaller tiles and performing detection independently on each tile. This method is efficient as long as the tile size is significantly larger than the objects being detected.</p>
+<p>This technique is implemented in all <code>Detector</code> subclasses and can be activated by passing a tuple to the optional <code>patch_size</code> parameter when creating the <code>Detector</code> instance , specifying the desired patch dimensions:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>detector <span style="color:#f92672">=</span> YOLOv8(model_weights <span style="color:#f92672">=</span> model_path, patch_size<span style="color:#f92672">=</span>(<span style="color:#ae81ff">512</span>,<span style="color:#ae81ff">512</span>)) <span style="color:#75715e"># YOLOv8 as an example</span>
+</span></span><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>detect(detector)
+</span></span></code></pre></div><h3 id="the-cropping-of-objects-to-create-new-image-collections">The Cropping of Objects to Create New Image Collections</h3>
+<p>Once objects have been detected these can then be cropped and the cropped images can be saved to a new directory using the <code>crop</code> method of an <code>ImageDataset</code> instance.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>object_directory <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;path/to/where/cropped/object/images/should/be/saved&#34;</span>
+</span></span><span style="display:flex;"><span>object_name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;object_class_name&#34;</span>
+</span></span><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>crop(output_directory <span style="color:#f92672">=</span> object_directory, object_name)
+</span></span></code></pre></div>
+</main>
+
+  <footer>
+  
+  
+  <hr/>
+  © 2025 Jack Rich. Department of Crop Science, University of Reading. Contact: <!-- raw HTML omitted --><a href="mailto:j.b.c.rich@pgr.reading.ac.uk">j.b.c.rich@pgr.reading.ac.uk</a><!-- raw HTML omitted -->
+  
+  </footer>
+  </body>
+</html>
+

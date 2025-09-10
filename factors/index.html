@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><style>
+ 
+.menu {
+  text-align: center;           
+  padding: 0;
+  margin: 0;
+  list-style: none;             
+}
+
+.menu li {
+  display: inline-block;        
+  margin: 0 10px;               
+}
+
+.menu a {
+  font-size: 1.5rem;
+  text-decoration: none;
+  background: #eee;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: inline-block;
+  color: #333;
+  transition: background 0.2s, color 0.2s;
+}
+
+.menu a:hover {
+  background: #ddd;
+  color: #0077cc;
+}
+</style>
+
+
+
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Handling Image Datasets with Factors | GWEL</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Gwel</a></li>
+      
+      <li><a href="/readme">Install</a></li>
+      
+      <li><a href="/contact">Contact</a></li>
+      
+      <li><a href="/github">Github</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Handling Image Datasets with Factors</span></h1>
+
+
+</div>
+
+<main>
+<p>This tutorial follows on from the previous tutorial <a href="/imagedataset">Handling Image Data with the ImageDataset Class</a>. This tutorial will assume you have covered the content of that tutorial.</p>
+<p>When an image dataset is generated as a result of an experiment, the corresponding experimental variables are referred to as <em>factors</em> within the <code>gwel</code> package. An experiment can have multiple factors, it is assumed each image is assigned a single value for each factor. Factors may correspond to independent, dependent or control variables. Examples of factors can include time, treatment or replicate.</p>
+<p>To add a factor to an <code>ImageDataset</code> instance named <code>dataset</code>, use the <code>factor</code> method. This method has arguments, a string, corresponding to the factor name, and a list, corresponding the values of the factor in the order of the images in <code>dataset.images</code>. See below for an example.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>factor_name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;factor1&#39;</span>
+</span></span><span style="display:flex;"><span>factor_values <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#f92672">...</span>,N] <span style="color:#75715e"># corresponding to the initial order of images in `dataset.images` in future versions this will be updated to a dictionary with image name keys and factor values .</span>
+</span></span><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>factor(factor_name , factor_values)
+</span></span></code></pre></div><p>An unlimited number of factors can be added to the <code>dataset</code> object in the way. To check the number of factors defined in <code>dataset</code>, use the <code>status</code> method.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>status()
+</span></span></code></pre></div><p>To access the factors as a dictionary use the <code>factors</code> attribute,</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>factors <span style="color:#f92672">=</span> dataset<span style="color:#f92672">.</span>factors
+</span></span></code></pre></div><p>Images can be reordered based on the nesting order of the factors by using the <code>sort</code> method and providing a list of factor names in the desired order, from most to least nested. Numerical factors are sorted in ascending numerical order, while categorical (string) factors are sorted in alphabetical order.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>dataset<span style="color:#f92672">.</span>sort([<span style="color:#e6db74">&#34;factor_name_1&#34;</span>,<span style="color:#e6db74">&#34;factor_name_2&#34;</span>,<span style="color:#e6db74">&#34;...&#34;</span>,<span style="color:#e6db74">&#34;factor_name_n&#34;</span>])
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ordered from most to least nested </span>
+</span></span></code></pre></div><p>To filter the images based on specific factor values, use the <code>filter</code> method. Pass a dictionary where each key is a factor name and the corresponding value is a list of acceptable values for that factor. The filter performs an OR operation across the specified factor values for each factor.</p>
+<p>The method returns a list of image names that match any of the given values for each specified factor.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>filtered_images <span style="color:#f92672">=</span> dataset<span style="color:#f92672">.</span>filter({<span style="color:#e6db74">&#39;factor_name&#39;</span>:factor_values})
+</span></span></code></pre></div><p>After filtering a list of image names these images can then be copied into a new directory. Since this is a common workflow it is implemented in the <code>sample</code> method.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>sample_dir <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;path/to/directory/where/images/will/be/copied/into&#39;</span>
+</span></span><span style="display:flex;"><span>filtered_images <span style="color:#f92672">=</span> dataset<span style="color:#f92672">.</span>sample(directory <span style="color:#f92672">=</span> sample_dir, factors <span style="color:#f92672">=</span> {<span style="color:#e6db74">&#39;factor_name&#39;</span>:factor_values})
+</span></span></code></pre></div>
+</main>
+
+  <footer>
+  
+  
+  <hr/>
+  © 2025 Jack Rich. Department of Crop Science, University of Reading. Contact: <!-- raw HTML omitted --><a href="mailto:j.b.c.rich@pgr.reading.ac.uk">j.b.c.rich@pgr.reading.ac.uk</a><!-- raw HTML omitted -->
+  
+  </footer>
+  </body>
+</html>
+
