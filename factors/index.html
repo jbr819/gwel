@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<script src="/gwel/livereload.js?mindelay=10&amp;v=2&amp;port=44691&amp;path=gwel/livereload" data-no-instant defer></script><style>
+<script src="/gwel/livereload.js?mindelay=10&amp;v=2&amp;port=37507&amp;path=gwel/livereload" data-no-instant defer></script><style>
  
 .menu {
   text-align: center;           
@@ -66,7 +66,7 @@
 </div>
 
 <main>
-<p>This tutorial follows on from the previous tutorial <a href="/imagedataset">Handling Image Data with the ImageDataset Class</a>. This tutorial will assume you have covered the content of that tutorial.</p>
+<p>This tutorial follows on from the previous tutorial <a href="../imagedataset">Handling Image Data with the ImageDataset Class</a>. This tutorial will assume you have covered the content of that tutorial.</p>
 <p>When an image dataset is generated as a result of an experiment, the corresponding experimental variables are referred to as <em>factors</em> within the <code>gwel</code> package. An experiment can have multiple factors, it is assumed each image is assigned a single value for each factor. Factors may correspond to independent, dependent or control variables. Examples of factors can include time, treatment or replicate.</p>
 <p>To add a factor to an <code>ImageDataset</code> instance named <code>dataset</code>, use the <code>factor</code> method. This method has arguments, a string, corresponding to the factor name, and a list, corresponding the values of the factor in the order of the images in <code>dataset.images</code>. See below for an example.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>factor_name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;factor1&#39;</span>

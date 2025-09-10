@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<script src="/gwel/livereload.js?mindelay=10&amp;v=2&amp;port=44691&amp;path=gwel/livereload" data-no-instant defer></script><style>
+<script src="/gwel/livereload.js?mindelay=10&amp;v=2&amp;port=37507&amp;path=gwel/livereload" data-no-instant defer></script><style>
  
 .menu {
   text-align: center;           
@@ -66,7 +66,7 @@
 </div>
 
 <main>
-<p>This tutorial builds on <a href="/detection">the previous tutorial</a> that introduced the <code>Detector</code> class for object and instance detection. In contrast to object detection, which focuses on predicting bounding boxes, and instance segmentation, which identifies individual object masks, <em>semantic segmentation</em> classifies every pixel in an image based on its semantic meaning. It does not differentiate between separate instances of the same class but instead assigns a class label to each pixel. In this module, this functionality is encapsulated by the <code>Segmenter</code> abstract class, which provides a unified interface for performing semantic segmentation on image data.</p>
+<p>This tutorial builds on <a href="../detection">the previous tutorial</a> that introduced the <code>Detector</code> class for object and instance detection. In contrast to object detection, which focuses on predicting bounding boxes, and instance segmentation, which identifies individual object masks, <em>semantic segmentation</em> classifies every pixel in an image based on its semantic meaning. It does not differentiate between separate instances of the same class but instead assigns a class label to each pixel. In this module, this functionality is encapsulated by the <code>Segmenter</code> abstract class, which provides a unified interface for performing semantic segmentation on image data.</p>
 <p>Each subclass of the <code>Segmenter</code> class provides its own implementation of the <code>segment</code> method, tailored to the specific framework and architecture used an underlying neural network. This allows for flexibility in supporting various detection models while maintaining a consistent interface.</p>
 <p>Currently implemented <code>Segmenter</code> subclasses includes a <code>UNET</code> style architecture based on the <a href="https://arxiv.org/pdf/1505.04597">UNET</a> (object detection) architecture. Additionally, the <code>LociSegmenter</code> subclass segments an image as the loci of pixels centered on detections obtained through a <code>Detector</code> instance.</p>
 <p>An architecture can be trained to detect any class of object or instance by adjusting its weights. These model weights are learned by optimizing a loss function on training data - specifically, images paired with corresponding labels. The resulting weights are typically saved to a file, which can later be loaded for inference. This tutorial assumes that the model weights have already been calculated and are available for the architecture being used. If you have do not have model weights, you may wish to follow the tutorial on model training for guidance on how to obtain them.</p>
