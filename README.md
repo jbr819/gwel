@@ -59,7 +59,7 @@ Verify gwel installation:
 
 ```bash
 gwel --version
-GWEL CLI version 0.0.1a0
+GWEL CLI version x.y.z
 ```
 To see gwel subcommands: 
 ```bash
@@ -74,7 +74,7 @@ gwel view
 #pressing the 'f' key will flag images.
 ```
 
-For detailed tutorials, visit [the wiki]().
+For detailed tutorials, visit [the wiki](https://jbr819.github.io/gwel/).
 
 ## Acknowledgments
 This research is funded by the [Biotechnology and Biological Sciences Research Council (BBSRC)](https://www.ukri.org/councils/bbsrc/), part of [UK Research and Innovation (UKRI)](https://www.ukri.org/), through the [FoodBioSystems Doctoral Training Partnership (DTP)](https://research.reading.ac.uk/foodbiosystems/) as part of my PhD project at the [University of Reading](https://www.reading.ac.uk/).
