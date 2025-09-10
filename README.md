@@ -16,7 +16,7 @@ If installing from source following these directions:
 ### 1 Clone this repo
 
 ```bash
-git clone https://gitlab.act.reading.ac.uk/bw832080/gwel.git
+git clone https://github.com/jbr819/gwel.git
 cd gwel
 ```
 
