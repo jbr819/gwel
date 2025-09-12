@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><style>
+<style>
  
 .menu {
   text-align: center;           
@@ -38,8 +38,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Semantic Segmentation with Pre-trained Models | GWEL</title>
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/gwel.org/css/style.css" />
+    <link rel="stylesheet" href="/gwel.org/css/fonts.css" />
     
   </head>
 
@@ -47,11 +47,11 @@
     <nav>
     <ul class="menu">
       
-      <li><a href="/">Gwel</a></li>
+      <li><a href="/gwel.org">Gwel</a></li>
       
-      <li><a href="/readme">Install</a></li>
+      <li><a href="/gwel.org/readme">Install</a></li>
       
-      <li><a href="/contact">Contact</a></li>
+      <li><a href="/gwel.org/contact">Contact</a></li>
       
       <li><a href="https://github.com/jbr819/gwel">Github</a></li>
       
@@ -103,7 +103,7 @@
 </span></span><span style="display:flex;"><span><span style="color:#75715e">#to navigate to the next or previous images use the &#39;n&#39; and &#39;p&#39; keys respectively.</span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">#press the &#39;q&#39; key to quit. </span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">#pressing the &#39;f&#39; key will flag images, see earlier tutorials for a recap on flagging.</span>
-</span></span></code></pre></div><p>By default, the <code>ImageDataset.segment</code> method automatically caches the segmentation by storing run length encoded binary arrays in COCO json format at <code>'.dph-reading/masks.json'</code> inside the images directory. When the <code>segment</code> method is called a second time, it will automatically read this file without executing the model, unless the <code>use_saved</code> optional argument is set to <code>False</code>. Additionally, if you do not wish to cache or overwrite an existing <code>masks.json</code> , set the <code>write</code> optional argument to <code>False</code> when calling the <code>segment</code> method.</p>
+</span></span></code></pre></div><p>By default, the <code>ImageDataset.segment</code> method automatically caches the segmentation by storing run length encoded binary arrays in COCO json format at <code>'.gwel/masks.json'</code> inside the images directory. When the <code>segment</code> method is called a second time, it will automatically read this file without executing the model, unless the <code>use_saved</code> optional argument is set to <code>False</code>. Additionally, if you do not wish to cache or overwrite an existing <code>masks.json</code> , set the <code>write</code> optional argument to <code>False</code> when calling the <code>segment</code> method.</p>
 
 </main>
 

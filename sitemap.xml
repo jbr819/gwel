@@ -2,24 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>//localhost:1313/github/</loc>
+    <loc>gwel.org/github/</loc>
   </url><url>
-    <loc>//localhost:1313/categories/</loc>
+    <loc>gwel.org/categories/</loc>
   </url><url>
-    <loc>//localhost:1313/contact/</loc>
+    <loc>gwel.org/contact/</loc>
   </url><url>
-    <loc>//localhost:1313/</loc>
+    <loc>gwel.org/</loc>
   </url><url>
-    <loc>//localhost:1313/factors/</loc>
+    <loc>gwel.org/factors/</loc>
   </url><url>
-    <loc>//localhost:1313/imagedataset/</loc>
+    <loc>gwel.org/imagedataset/</loc>
   </url><url>
-    <loc>//localhost:1313/readme/</loc>
+    <loc>gwel.org/readme/</loc>
   </url><url>
-    <loc>//localhost:1313/detection/</loc>
+    <loc>gwel.org/detection/</loc>
   </url><url>
-    <loc>//localhost:1313/segmentation/</loc>
+    <loc>gwel.org/segmentation/</loc>
   </url><url>
-    <loc>//localhost:1313/tags/</loc>
+    <loc>gwel.org/tags/</loc>
   </url>
 </urlset>
