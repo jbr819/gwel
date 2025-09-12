@@ -2,24 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://jbr819.github.io/gwel/github/</loc>
+    <loc>//localhost:1313/github/</loc>
   </url><url>
-    <loc>https://jbr819.github.io/gwel/categories/</loc>
+    <loc>//localhost:1313/categories/</loc>
   </url><url>
-    <loc>https://jbr819.github.io/gwel/contact/</loc>
+    <loc>//localhost:1313/contact/</loc>
   </url><url>
-    <loc>https://jbr819.github.io/gwel/</loc>
+    <loc>//localhost:1313/</loc>
   </url><url>
-    <loc>https://jbr819.github.io/gwel/factors/</loc>
+    <loc>//localhost:1313/factors/</loc>
   </url><url>
-    <loc>https://jbr819.github.io/gwel/imagedataset/</loc>
+    <loc>//localhost:1313/imagedataset/</loc>
   </url><url>
-    <loc>https://jbr819.github.io/gwel/readme/</loc>
+    <loc>//localhost:1313/readme/</loc>
   </url><url>
-    <loc>https://jbr819.github.io/gwel/detection/</loc>
+    <loc>//localhost:1313/detection/</loc>
   </url><url>
-    <loc>https://jbr819.github.io/gwel/segmentation/</loc>
+    <loc>//localhost:1313/segmentation/</loc>
   </url><url>
-    <loc>https://jbr819.github.io/gwel/tags/</loc>
+    <loc>//localhost:1313/tags/</loc>
   </url>
 </urlset>

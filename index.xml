@@ -2,58 +2,58 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Gwel Wiki on GWEL</title>
-    <link>https://jbr819.github.io/gwel/</link>
+    <link>//localhost:1313/</link>
     <description>Recent content in Gwel Wiki on GWEL</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <atom:link href="https://jbr819.github.io/gwel/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="//localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title></title>
-      <link>https://jbr819.github.io/gwel/github/</link>
+      <link>//localhost:1313/github/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://jbr819.github.io/gwel/github/</guid>
+      <guid>//localhost:1313/github/</guid>
       <description>&lt;p&gt;&lt;strong&gt;Latest Version: GWEL 0.0.1a0&lt;/strong&gt;&lt;/p&gt;</description>
     </item>
     <item>
       <title>Contact</title>
-      <link>https://jbr819.github.io/gwel/contact/</link>
+      <link>//localhost:1313/contact/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://jbr819.github.io/gwel/contact/</guid>
+      <guid>//localhost:1313/contact/</guid>
       <description>&lt;p&gt;Please feel free to reach out if you use this framework for your computer vision projects. I am actively developing the package and hope it will be useful in as many projects as possible. I can also provide guidance on best practices and even implement specialized features if needed.&lt;/p&gt;&#xA;&lt;p&gt;This framework is created and maintained by &lt;strong&gt;Jack Rich&lt;/strong&gt; (&lt;a href=&#34;mailto:j.b.c.rich@pgr.reading.ac.uk&#34;&gt;j.b.c.rich@pgr.reading.ac.uk&lt;/a&gt;), Department of Crop Science, School of Agriculture, Policy, and Development, University of Reading, as part of my PhD research.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Handling Image Datasets with Factors</title>
-      <link>https://jbr819.github.io/gwel/factors/</link>
+      <link>//localhost:1313/factors/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://jbr819.github.io/gwel/factors/</guid>
+      <guid>//localhost:1313/factors/</guid>
       <description>&lt;p&gt;This tutorial follows on from the previous tutorial &lt;a href=&#34;../imagedataset&#34;&gt;Handling Image Data with the ImageDataset Class&lt;/a&gt;. This tutorial will assume you have covered the content of that tutorial.&lt;/p&gt;&#xA;&lt;p&gt;When an image dataset is generated as a result of an experiment, the corresponding experimental variables are referred to as &lt;em&gt;factors&lt;/em&gt; within the &lt;code&gt;gwel&lt;/code&gt; package. An experiment can have multiple factors, it is assumed each image is assigned a single value for each factor. Factors may correspond to independent, dependent or control variables. Examples of factors can include time, treatment or replicate.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Handling Image Datasets with the ImageDataset Class</title>
-      <link>https://jbr819.github.io/gwel/imagedataset/</link>
+      <link>//localhost:1313/imagedataset/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://jbr819.github.io/gwel/imagedataset/</guid>
+      <guid>//localhost:1313/imagedataset/</guid>
       <description>&lt;p&gt;This tutorial provides an introduction to using the &lt;code&gt;ImageDataset&lt;/code&gt; class, which is central to handling collections of images within the gwel package.&lt;/p&gt;&#xA;&lt;p&gt;Before you get started, you&amp;rsquo;ll need to install the package in a Python environment. To do so, follow the installation instructions provided in the README.md. After installation, activate your Python environment and open your preferred IDE or however you may choose to write python scipts. If you&amp;rsquo;re looking for recommendations, &lt;a href=&#34;https://www.spyder-ide.org/&#34;&gt;Spyder&lt;/a&gt; or &lt;a href=&#34;https://code.visualstudio.com/&#34;&gt;VScode&lt;/a&gt; are good options for data science and image processing tasks.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Installation and Command Line Interface</title>
-      <link>https://jbr819.github.io/gwel/readme/</link>
+      <link>//localhost:1313/readme/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://jbr819.github.io/gwel/readme/</guid>
+      <guid>//localhost:1313/readme/</guid>
       <description>&lt;h3 id=&#34;0-install-via-pypi&#34;&gt;0 Install via PyPI&lt;/h3&gt;&#xA;&lt;p&gt;For a quick installation of the latest stable version ( &lt;a href=&#34;https://docs.anaconda.com/miniconda/install/&#34;&gt;conda&lt;/a&gt; package manager recomended):&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pip install gwel&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If installing from source following these directions:&lt;/p&gt;&#xA;&lt;h3 id=&#34;1-clone-this-repo&#34;&gt;1 Clone this repo&lt;/h3&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git clone https://gitlab.act.reading.ac.uk/bw832080/gwel.git&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd gwel&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;2-create-virtual-environment&#34;&gt;2 Create Virtual Environment&lt;/h3&gt;&#xA;&lt;p&gt;With &lt;a href=&#34;https://docs.anaconda.com/miniconda/install/&#34;&gt;conda&lt;/a&gt; (recommended):&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;conda env create -f environment.yml&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;conda activate gwel&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With venv (Linux and macOS):&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;python3.10 -m venv gwel &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;source gwel/bin/activate&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pip install -r requirements.txt&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With venv (Windows):&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-powershell&#34; data-lang=&#34;powershell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;python3.10 -m venv gwel &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;gwel\Scripts\activate &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pip install -r requirements.txt&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;3-install-gwel&#34;&gt;3 Install gwel&lt;/h3&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pip install -e .&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;command-line-interface-cli&#34;&gt;Command Line Interface (CLI)&lt;/h2&gt;&#xA;&lt;p&gt;Verify gwel installation:&lt;/p&gt;</description>
     </item>
     <item>
       <title>Object and Instance Detection with Pre-trained Models</title>
-      <link>https://jbr819.github.io/gwel/detection/</link>
+      <link>//localhost:1313/detection/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://jbr819.github.io/gwel/detection/</guid>
+      <guid>//localhost:1313/detection/</guid>
       <description>&lt;p&gt;This module is primarily designed to facilitate the use of neural networks for computer vision tasks on image data. This particular tutorial focuses on object and instance detection.&lt;/p&gt;&#xA;&lt;p&gt;Object and instance detection involves identifying and localizing objects within an image. Typically, object detection refers to predicting both the class and the bounding box of each object. In contrast, instance segmentation goes a step further by also determining the precise boundaries (masks) of each object, allowing for pixel-level differentiation between individual instances.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Semantic Segmentation with Pre-trained Models</title>
-      <link>https://jbr819.github.io/gwel/segmentation/</link>
+      <link>//localhost:1313/segmentation/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://jbr819.github.io/gwel/segmentation/</guid>
+      <guid>//localhost:1313/segmentation/</guid>
       <description>&lt;p&gt;This tutorial builds on &lt;a href=&#34;../detection&#34;&gt;the previous tutorial&lt;/a&gt; that introduced the &lt;code&gt;Detector&lt;/code&gt; class for object and instance detection. In contrast to object detection, which focuses on predicting bounding boxes, and instance segmentation, which identifies individual object masks, &lt;em&gt;semantic segmentation&lt;/em&gt; classifies every pixel in an image based on its semantic meaning. It does not differentiate between separate instances of the same class but instead assigns a class label to each pixel. In this module, this functionality is encapsulated by the &lt;code&gt;Segmenter&lt;/code&gt; abstract class, which provides a unified interface for performing semantic segmentation on image data.&lt;/p&gt;</description>
     </item>
   </channel>
