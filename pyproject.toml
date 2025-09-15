@@ -4,14 +4,22 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gwel"
-version = "0.0.1a0"
-description = "A computer vision package handling large image datasets and using neural networks"
+version = "0.0.2a0"
+description = "A computer vision package for handling large image datasets and using neural networks"
 authors = [{ name = "Jack Rich", email = "j.b.c.rich@pgr.reading.ac.uk"}]
 license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-    "typer[all]",
+    "numpy",
+    "pandas",
+    "scipy",
+    "opencv-python",
+    "Pillow",
+    "tqdm",
+    "pycocotools",
+    "colorama",
+    "typer[all]"
 ]
 
 [tool.setuptools.packages.find]
