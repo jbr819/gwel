@@ -10,6 +10,7 @@ from tqdm import tqdm
 from gwel.dataset import ImageDataset 
 import numpy as np
 import pycocotools.mask as mask_utils
+from matplotlib import colors as mcolors
 
 class Viewer:
     def __init__(self, dataset: ImageDataset,
@@ -20,7 +21,7 @@ class Viewer:
         
         self.max_pixels = max_pixels 
         self.contour_thickness = contour_thickness
-        self.col_scheme = col_scheme
+        self.col_scheme = {k: tuple(int(c*255) for c in reversed(mcolors.to_rgb(v))) for k, v in col_scheme.items()}
         self.mode = mode
         self.dataset = dataset
         self.directory = getattr(self.dataset, "resized_images_directory", self.dataset.directory)
@@ -72,8 +73,17 @@ class Viewer:
                 self.mode = "circandseg"
             elif key == ord("0"):
                 self.mode = ""
-            
-
+            elif key == ord("w"):
+                p = input("Enter output path (leave blank for default): ").strip()
+                d = os.path.expanduser(self.dataset.directory + "/.gwel/saves") if not p else os.path.dirname(os.path.abspath(p))
+                os.makedirs(d, exist_ok=True)
+                if not p:
+                    i = 1
+                    while os.path.exists(os.path.join(d, f"output_{i}.png")): i += 1
+                    p = os.path.join(d, f"output_{i}.png")
+                else: p = os.path.abspath(p)
+                try: self.save(p); print(f"Saved to {p}")
+                except Exception as e: print(f"Error saving: {e}")
 
         cv2.destroyAllWindows()
 
@@ -138,15 +148,21 @@ class Viewer:
                 for contours in self.detections['polygons']:
                     cv2.drawContours(instance_mask, contours, contourIdx=-1, color=255, thickness=cv2.FILLED)
                 instance_mask = cv2.resize(instance_mask,(self.image.shape[1],self.image.shape[0]))
-            
-            for rle in rles:
-                mask = mask_utils.decode(rle) 
-                mask = cv2.resize(mask,(self.image.shape[1],self.image.shape[0]))
+
+            rles_dict = self.dataset.masks[self.image_name] 
+
+            for label, rle in rles_dict.items():
+                mask = mask_utils.decode(rle)
+                mask = cv2.resize(mask, (self.image.shape[1], self.image.shape[0]))
                 mask = mask * instance_mask
                 contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                cv2.drawContours(self.image,contours,-1, colour , self.contour_thickness)
-            
+                random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                colour = self.col_scheme.get(label, random_colour)
+                if colour:
+                    cv2.drawContours(self.image, contours, -1, colour, self.contour_thickness)
+
+
+
  
         if self.mode == "instandseg": 
             self.detections = copy.deepcopy(self.dataset.object_detections[self.image_name])
@@ -164,15 +180,17 @@ class Viewer:
                     cv2.drawContours(self.image, rescaled_contours, -1, colour , self.contour_thickness)
         
             rles_dict = self.dataset.masks[self.image_name] 
-            rles = list(rles_dict.values())
-             
-            for rle in rles:
-                mask = mask_utils.decode(rle) 
-                mask = cv2.resize(mask,(self.image.shape[1],self.image.shape[0]))
+
+            for label, rle in rles_dict.items():
+                mask = mask_utils.decode(rle)
+                mask = cv2.resize(mask, (self.image.shape[1], self.image.shape[0]))
                 contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                cv2.drawContours(self.image,contours,-1, colour , self.contour_thickness)
-       
+                random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                colour = self.col_scheme.get(label, random_colour)
+                if colour:
+                    cv2.drawContours(self.image, contours, -1, colour, self.contour_thickness)
+
+      
         if self.mode == "circandseg": 
             self.detections = copy.deepcopy(self.dataset.object_detections[self.image_name])
             

@@ -1,5 +1,6 @@
 # src/gwel/cli.py
 import os
+import json
 import typer
 from gwel.dataset import ImageDataset
 from gwel.viewer import Viewer
@@ -54,14 +55,18 @@ def view(
     ctx: typer.Context,
     resized_flag: bool = typer.Option(
         False, "--resized", "-r", help="View resized images."),
-    max_pixels: int = typer.Option(
-        800, "--maxpixels", "-p", help="Max Pixels."),
-    detections_flag: bool = typer.Option(
+     detections_flag: bool = typer.Option(
         False, "--detections", "-d", help="Load pre-detected object annotations."), 
     segmentation_flag: bool = typer.Option(
         False, "--segmentation", "-s", help="Load pre-detected segementation."),  
+    max_pixels: int = typer.Option(
+        800, "--maxpixels", "-p", help="Max Pixels."),
+    index: int = typer.Option(
+        1, "--index", "-i", help="The index of image to be viewed on opening."),
     contour_thickness: int = typer.Option(
-        2, "--thickness", "-t", help="Thickness in pixels of annotations." 
+        2, "--thickness", "-t", help="Thickness in pixels of annotations."), 
+    col_scheme: str = typer.Option(
+        {}, "--col_scheme", "-c", help="Color scheme for annotations as JSON string using color names recognized by matplotlib." 
          )
 ):
     """
@@ -76,7 +81,9 @@ def view(
             dataset.detect()
         if segmentation_flag:
             dataset.segment() 
-        viewer = Viewer(dataset,max_pixels = max_pixels,contour_thickness=contour_thickness)
+        col_scheme_dict = json.loads(col_scheme) 
+        viewer = Viewer(dataset,max_pixels = max_pixels,contour_thickness=contour_thickness,col_scheme=col_scheme_dict)
+        viewer.index = index - 1
         if detections_flag:
             viewer.mode = 'instance'
         viewer.open()
