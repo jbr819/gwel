@@ -94,14 +94,15 @@ def view(
 
 
 @app.command()
-def resize():
+def resize(max_pixels: int = typer.Option(
+        800, "--maxpixels", "-p", help="Max Pixels.")):
     """
     Create resized copies of the images from the current directory.
     """
     directory = os.getcwd()
     try:
         dataset = ImageDataset(directory)
-        dataset.resize()
+        dataset.resize(max_pixels=max_pixels)
     except ValueError as e:
         # Only print the error message, no traceback
         typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
