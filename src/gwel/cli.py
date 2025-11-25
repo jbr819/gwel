@@ -108,7 +108,8 @@ def resize():
 
 
 @app.command()
-def detect(model: str, weights: str):
+def detect(model: str, weights: str, slice_size= typer.Option(
+    None, "--slicesz", "-s", help="Slice size (Default: None)")):
     """
     Run a detector on the images from the current directory.
     """
@@ -117,7 +118,10 @@ def detect(model: str, weights: str):
         if os.path.exists(weights):
             if model == "YOLOv8":
                 from gwel.networks.YOLOv8 import YOLOv8
-                detector = YOLOv8(weights)
+                if slice_size:
+                    detector = YOLOv8(weights)
+                else:
+                    detector = YOLOv8(weights,patch_size=(slice_size,slice_size))
             else:
                 raise ValueError("Model type unknown.")
         else:

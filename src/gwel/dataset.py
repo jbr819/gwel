@@ -331,8 +331,8 @@ class ImageDataset:
             for instance in detected_instances:
                 self.object_detections[image_name]["polygons"].append(instance)               
         if write: 
-            self.write_object_detections()
-            #self.write_object_detections(resized=True)
+            #self.write_object_detections()
+            self.write_object_detections(resized=True)
 
 
 
