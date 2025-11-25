@@ -119,7 +119,7 @@ def detect(model: str, weights: str, slice_size= typer.Option(
         if os.path.exists(weights):
             if model == "YOLOv8":
                 from gwel.networks.YOLOv8 import YOLOv8
-                if slice_size:
+                if not slice_size:
                     detector = YOLOv8(weights)
                 else:
                     detector = YOLOv8(weights,patch_size=(slice_size,slice_size))
