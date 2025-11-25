@@ -109,7 +109,7 @@ def resize(max_pixels: int = typer.Option(
 
 
 @app.command()
-def detect(model: str, weights: str, slice_size= typer.Option(
+def detect(model: str, weights: str, slice_size:int = typer.Option(
     None, "--slicesz", "-s", help="Slice size (Default: None)")):
     """
     Run a detector on the images from the current directory.
