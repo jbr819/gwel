@@ -295,7 +295,7 @@ class ImageDataset:
             shutil.copy(os.path.join(self.directory,patch_dir,image),os.path.join(dir,image))
 
 
-    def detect(self, detector : Detector = None, use_saved : bool = True, annotations_path : str = None, write : bool = True, threshold = 0.9):
+    def detect(self, detector : Detector = None, use_saved : bool = True, annotations_path : str = None, write : bool = True, threshold = 0.3):
         resized_dir = self.resized_directory
         if use_saved == True:
             pre_saved = self.load_object_detections(annotations_path)
@@ -484,6 +484,8 @@ class ImageDataset:
             
         return ImageDataset(output_directory)
 
+    
+        
 
     def export_train_data(self, output_dir: str, N: int, format: str = "COCO", include_flagged: bool = True, dataset_name: str = "exported_data"):
         if format not in ["COCO", "YOLO"]:
