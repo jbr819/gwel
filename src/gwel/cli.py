@@ -123,6 +123,8 @@ def detect(model: str, weights: str, slice_size:int = typer.Option(
                     detector = YOLOv8(weights)
                 else:
                     detector = YOLOv8(weights,patch_size=(slice_size,slice_size))
+                if cuda:
+                    detector.set_device('cuda')
             else:
                 raise ValueError("Model type unknown.")
         else:
