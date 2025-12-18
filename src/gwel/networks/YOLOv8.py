@@ -48,7 +48,7 @@ class YOLOv8(Detector):
         self.model = YOLO(weights, task = 'detect')
         if torch.cuda.is_available():
             device = torch.device('cuda')
-            model.model.to(device)
+            self.model.to(device)
         #self.model.to(self.device)
      
     def inference(self, image: np.ndarray):
