@@ -146,8 +146,8 @@ class UNET(Segmenter):
             mask = (cropped_masks == channel).astype(np.uint8)  # ensure mask is uint8
 
             # Apply morphological closing
-            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-            mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+            #kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+            #mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
 
             rle = mask_utils.encode(np.asfortranarray(mask))
 

@@ -2,6 +2,7 @@
 import os
 import json
 import typer
+from typing import List
 from gwel.dataset import ImageDataset
 from gwel.viewer import Viewer
 
@@ -108,9 +109,12 @@ def resize(max_pixels: int = typer.Option(
         typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
 
 
+
 @app.command()
-def detect(model: str, weights: str, slice_size:int = typer.Option(
-    None, "--slicesz", "-s", help="Slice size (Default: None)")):
+def detect(model: str = typer.Argument(...,help="Model type"), 
+           weights: str = typer.Argument(...,help="Path to model weights"), 
+           slice_size:int = typer.Option(
+    None, "--slicesz", "-s", help="Slice size")):
     """
     Run a detector on the images from the current directory.
     """
@@ -127,10 +131,42 @@ def detect(model: str, weights: str, slice_size:int = typer.Option(
                 raise ValueError("Model type unknown.")
         else:
             raise ValueError("No weights found at location {weights}.")
-
         dataset = ImageDataset(directory)
         dataset.resize()
         dataset.detect(detector)
+    except ValueError as e:
+        # Only print the error message, no traceback
+        typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
+
+
+
+
+@app.command()
+def segment(model: str = typer.Argument(...,help="Model type"),
+            weights: str = typer.Argument(...,help="Path to model weights"), 
+            channels: List[str] = typer.Argument(...,help="Segmentation class labels"), 
+            patch_size:int = typer.Option(256, "--patchsz", "-s", help="Patch size"),
+            background:bool = typer.Option(False, "--background","-b", help="Include background channel")
+            ):
+    """
+    Run a segmenter on the images from the current directory.
+    """
+    directory = os.getcwd()
+    try:
+        if os.path.exists(weights):
+            if model == "UNET":
+                from gwel.networks.UNET import UNET  
+                segmenter = UNET(weights, patch_size, channels)
+            else:
+                raise ValueError("Model type unknown.")
+        else:
+            raise ValueError("No weights found at location {weights}.")
+        dataset = ImageDataset(directory)
+        if background:
+            dataset.segment(segmenter, background=True)
+        else:   
+            dataset.segment(segmenter)
+
     except ValueError as e:
         # Only print the error message, no traceback
         typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)

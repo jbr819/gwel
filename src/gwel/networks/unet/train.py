@@ -63,7 +63,7 @@ def train(model, dataloader, criterion, optimizer, device, epoch, num_classes):
     # Prepare metrics row
     metrics = {"epoch": epoch + 1, "loss": avg_loss}
     for c, iou in enumerate(iou_per_class):
-        metrics[f"iou_class_{c}"] = iou
+        metrics[f"iou_class_{c}"] = float(f"{iou:.3g}")
 
     return pd.DataFrame([metrics])
 

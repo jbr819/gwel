@@ -21,7 +21,6 @@ class Viewer:
         
         self.max_pixels = max_pixels 
         self.contour_thickness = contour_thickness
-        self.col_scheme = {k: tuple(int(c*255) for c in reversed(mcolors.to_rgb(v))) for k, v in col_scheme.items()}
         self.mode = mode
         self.dataset = dataset
         self.directory = getattr(self.dataset, "resized_images_directory", self.dataset.directory)
@@ -29,6 +28,15 @@ class Viewer:
         self.total_images = len(self.images)
         self.index = 0 
         self.col = False
+        self.col_scheme = {
+            k: (
+                None
+                if v is None
+                else tuple(int(c * 255) for c in reversed(mcolors.to_rgb(v)))
+            )
+            for k, v in col_scheme.items()
+        }
+
         
     def load_image(self):
         self.image_name = self.images[self.index]
@@ -71,6 +79,8 @@ class Viewer:
                 self.mode = "instandseg"
             elif key == ord("5"):
                 self.mode = "circandseg"
+            elif key == ord("6"):
+                self.mode = "block"
             elif key == ord("0"):
                 self.mode = ""
             elif key == ord("w"):
@@ -98,8 +108,8 @@ class Viewer:
         bar_color = (142, 76, 195) if self.flagged else (60, 179, 113)
         bar = np.full((bar_height, scaled_image.shape[1], 3), bar_color, dtype=np.uint8)
         overlay_text = f"{self.image_name} | {self.index + 1}/{self.total_images}"
-        text_color = (255, 255, 255)
-        cv2.putText(bar, overlay_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, text_color, 2)
+        text_color = (230, 230, 230)
+        cv2.putText(bar, overlay_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, text_color, 2,lineType=cv2.LINE_AA)
         combined_image = cv2.vconcat([bar, scaled_image])
 
         cv2.imshow("Viewer", combined_image)
@@ -112,26 +122,49 @@ class Viewer:
             self.detections = copy.deepcopy(self.dataset.object_detections[self.image_name])
             
             if self.detections['image_size']:     
-                W, H = self.detections['image_size']
-                colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+               
+                H, W = self.detections['image_size']
+                h_img, w_img = self.image.shape[:2]
+
+                sx = w_img / W
+                sy = h_img / H
+
+                if not self.col:
+                    base_colour = tuple(np.random.randint(0, 256, 3).tolist())
+
                 for contours in self.detections['polygons']:
-                    if self.col:
-                        colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    instance_mask = np.zeros((W,H), dtype = np.uint8)
-                    cv2.drawContours(instance_mask, contours, contourIdx=-1, color=255, thickness=cv2.FILLED)
-                    instance_mask = cv2.resize(instance_mask,(self.image.shape[1],self.image.shape[0]))
-                    rescaled_contours, _ = cv2.findContours(instance_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-                    cv2.drawContours(self.image, rescaled_contours, -1, colour , self.contour_thickness)
-        
+
+                    colour = (
+                        tuple(np.random.randint(0, 256, 3).tolist())
+                        if self.col else base_colour
+                    )
+
+                    scaled_contours = []
+
+                    for cnt in contours:
+                        cnt = cnt.astype(np.float32)
+                        cnt[:, 0] *= sx
+                        cnt[:, 1] *= sy                       
+                        scaled_contours.append(cnt.astype(np.int32).reshape(-1, 1, 2))
+
+                    cv2.drawContours(
+                        self.image,
+                        scaled_contours,
+                        contourIdx=-1,
+                        color=colour,
+                        thickness=self.contour_thickness
+                    )
+
         if self.mode == "segmentation":
             rles_dict = self.dataset.masks[self.image_name] 
-            rles = list(rles_dict.values())
-            for rle in rles:
+            for label, rle in rles_dict.items():
                 mask = mask_utils.decode(rle) 
                 mask = cv2.resize(mask,(self.image.shape[1],self.image.shape[0]))
                 contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                cv2.drawContours(self.image,contours,-1, colour , self.contour_thickness)
+                random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                colour = self.col_scheme.get(label, random_colour)
+                if colour:
+                    cv2.drawContours(self.image,contours,-1, colour , self.contour_thickness)
        
         
 
@@ -168,17 +201,39 @@ class Viewer:
             self.detections = copy.deepcopy(self.dataset.object_detections[self.image_name])
             
             if self.detections['image_size']:     
-                W, H = self.detections['image_size']
-                colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                H, W = self.detections['image_size']
+                h_img, w_img = self.image.shape[:2]
+
+                sx = w_img / W
+                sy = h_img / H
+
+                if not self.col:
+                    base_colour = tuple(np.random.randint(0, 256, 3).tolist())
+
                 for contours in self.detections['polygons']:
-                    if self.col:
-                        colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    instance_mask = np.zeros((W,H), dtype = np.uint8)
-                    cv2.drawContours(instance_mask, contours, contourIdx=-1, color=255, thickness=cv2.FILLED)
-                    instance_mask = cv2.resize(instance_mask,(self.image.shape[1],self.image.shape[0]))
-                    rescaled_contours, _ = cv2.findContours(instance_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-                    cv2.drawContours(self.image, rescaled_contours, -1, colour , self.contour_thickness)
-        
+
+                    colour = (
+                        tuple(np.random.randint(0, 256, 3).tolist())
+                        if self.col else base_colour
+                    )
+
+                    scaled_contours = []
+
+                    for cnt in contours:
+                        cnt = cnt.astype(np.float32)
+                        cnt[:, 0] *= sx
+                        cnt[:, 1] *= sy                       
+                        scaled_contours.append(cnt.astype(np.int32).reshape(-1, 1, 2))
+
+                    cv2.drawContours(
+                        self.image,
+                        scaled_contours,
+                        contourIdx=-1,
+                        color=colour,
+                        thickness=self.contour_thickness
+                    )
+
+       
             rles_dict = self.dataset.masks[self.image_name] 
 
             for label, rle in rles_dict.items():
@@ -211,14 +266,26 @@ class Viewer:
                     #cv2.drawContours(self.image, rescaled_contours, -1, colour , self.contour_thickness)
         
             rles_dict = self.dataset.masks[self.image_name] 
-            rles = list(rles_dict.values())
              
-            for rle in rles:
+            for label, rle in rles_dict.items():
                 mask = mask_utils.decode(rle) 
                 mask = cv2.resize(mask,(self.image.shape[1],self.image.shape[0]))
                 contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                cv2.drawContours(self.image,contours,-1, colour , self.contour_thickness)
+                random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                colour = self.col_scheme.get(label, random_colour)
+                if colour:
+                    cv2.drawContours(self.image,contours,-1, colour , self.contour_thickness)
+        if self.mode == "block":
+            rles_dict = self.dataset.masks[self.image_name] 
+            for label, rle in rles_dict.items():
+                mask = mask_utils.decode(rle) 
+                mask = cv2.resize(mask,(self.image.shape[1],self.image.shape[0]))
+                contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+                random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                colour = self.col_scheme.get(label, random_colour)
+                if colour:
+                    cv2.drawContours(self.image,contours,-1, colour , cv2.FILLED)
+
 
             #height, width = self.image.shape[:2]
             #scale_ratio = min(800 / width, 800 / height, 1)

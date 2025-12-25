@@ -320,6 +320,7 @@ class ImageDataset:
         
         detector.threshold = threshold 
 
+
         for image_name in tqdm(self.images, desc="Processing images", unit="image"):
             
             self.object_detections[image_name]={"image_size": None, "polygons": []}
