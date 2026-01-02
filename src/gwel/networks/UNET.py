@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import cv2
 from pycocotools import mask as mask_utils
+import yaml
 
 class UNet(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -97,17 +98,19 @@ class UNET(Segmenter):
     def __init__(self,
                  weights : str ,
                  patch_size : int,
-                 channels : list):
+                 channels : str):
         
-        self.model = UNet(3,len(channels)+1)
+        with open(channels) as f:
+            self.channels = yaml.safe_load(f)
+
+        self.model = UNet(3,len(self.channels)+1)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
         self.set_device(self.device)
         self.weights = weights
         self.load_weights( self.weights)
         self.patch_size = patch_size
         self.centerpad = CenterPad(patch_size)
-        self.channels = channels
-
+           
     def set_device(self, device : str):
         self.device = device
         self.model.to(device)
@@ -142,18 +145,10 @@ class UNET(Segmenter):
         
         output = {}
         
-        for channel in range(len(self.channels)+1):
-            mask = (cropped_masks == channel).astype(np.uint8)  # ensure mask is uint8
-
-            # Apply morphological closing
-            #kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-            #mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+        for class_name, channels in self.channels.items():
+            mask = np.isin(cropped_masks, list(channels)).astype(np.uint8)
 
             rle = mask_utils.encode(np.asfortranarray(mask))
-
-            if channel == 0:
-                output['background'] = rle
-            else:
-                output[self.channels[channel-1]] = rle
+            output[class_name] = rle
 
         return output

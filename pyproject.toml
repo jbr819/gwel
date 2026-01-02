@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gwel"
-version = "0.0.2a0"
+version = "0.0.3a0"
 description = "A computer vision package for handling large image datasets and using neural networks"
 authors = [{ name = "Jack Rich", email = "j.b.c.rich@pgr.reading.ac.uk"}]
 license = { text = "MIT" }

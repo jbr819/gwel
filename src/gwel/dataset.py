@@ -582,7 +582,7 @@ class ImageDataset:
         object_dataset = ImageDataset(objects_dir)
         return object_dataset
 
-    def segment(self, segmenter: Segmenter = None, use_saved = True, masks_file : str = None, background = False ):
+    def segment(self, segmenter: Segmenter = None, use_saved = True, masks_file : str = None):
        
 
         if use_saved:
@@ -592,10 +592,8 @@ class ImageDataset:
                 self.read_segmentation(masks_file)
                 return
 
-        self.masks["channels"] = list(segmenter.channels)
-        if background:
-            self.masks["channels"].insert(0,"background")
-
+        self.masks["channels"] = segmenter.channels.keys()
+        
         
         for image_name in tqdm(self.images, desc= 'Segmenting Images...',unit='image'):
            
@@ -657,31 +655,30 @@ class ImageDataset:
                 rle['counts'] = rle['counts'].decode('utf-8')
                 if rle['counts'] == 'Pfb\\1':
                     continue
-               # if polys:   
-                    #from shapely.geometry import Polygon
-                #    binary_mask = maskUtils.decode(rle).astype(np.uint8)
-                #    kernel = np.ones((3,3), np.uint8)
-                 #   smoothed_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_CLOSE, kernel, iterations=4)
-                  #  cv2.imwrite(f'test-{n}-{image_id}.png', 255*smoothed_mask)
-                    #contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                    #simplified_polygons = []
-                    #for contour in contours:
-                     #   points = contour.squeeze()
-                      #  if points.shape[0] < 3:
-                       #     continue
-                       # polygon = Polygon(points)
-                       # simplified = polygon.simplify(tolerance=2.0, preserve_topology=True)
-                       # simplified_coords = np.array(simplified.exterior.coords)
-                       # simplified_polygons.append(simplified_coords) 
-                    #polygons = []
-                    #for contour in simplified_polygons:
-                     #   contour = contour.reshape(-1, 2)
-                      #  if len(contour) >= 3:  # Needs at least 3 points to form a polygon
-                       #     polygon = contour.flatten().tolist()
-                        #    polygons.append(polygon)
-                    #segmentation = polygons
-               # else:
-                segmentation = rle
+                if polys:   
+                     from shapely.geometry import Polygon
+                     binary_mask = maskUtils.decode(rle).astype(np.uint8)
+                    # kernel = np.ones((3,3), np.uint8)
+                    # smoothed_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_CLOSE, kernel, iterations=4)
+                     contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                     simplified_polygons = []
+                     for contour in contours:
+                         points = contour.squeeze()
+                         if points.shape[0] < 3:
+                             continue
+                         polygon = Polygon(points)
+                         simplified = polygon.simplify(tolerance=1.5, preserve_topology=True)
+                         simplified_coords = np.array(simplified.exterior.coords)
+                         simplified_polygons.append(simplified_coords) 
+                     polygons = []
+                     for contour in simplified_polygons:
+                        contour = contour.reshape(-1, 2)
+                        if len(contour) >= 3:  # Needs at least 3 points to form a polygon
+                             polygon = contour.flatten().tolist()
+                             polygons.append(polygon)
+                     segmentation = polygons
+                else:
+                    segmentation = rle
                 
                 coco_data["annotations"].append({
                     "id": annotation_id,

@@ -1,6 +1,7 @@
 # src/gwel/cli.py
 import os
 import json
+import yaml
 import typer
 from typing import List
 from gwel.dataset import ImageDataset
@@ -56,7 +57,7 @@ def view(
     ctx: typer.Context,
     resized_flag: bool = typer.Option(
         False, "--resized", "-r", help="View resized images."),
-     detections_flag: bool = typer.Option(
+    detections_flag: bool = typer.Option(
         False, "--detections", "-d", help="Load pre-detected object annotations."), 
     segmentation_flag: bool = typer.Option(
         False, "--segmentation", "-s", help="Load pre-detected segementation."),  
@@ -66,14 +67,29 @@ def view(
         1, "--index", "-i", help="The index of image to be viewed on opening."),
     contour_thickness: int = typer.Option(
         2, "--thickness", "-t", help="Thickness in pixels of annotations."), 
-    col_scheme: str = typer.Option(
-        {}, "--col_scheme", "-c", help="Color scheme for annotations as JSON string using color names recognized by matplotlib." 
+    col_scheme: bool = typer.Option(
+        None, "--col_scheme", "-c", help="Path to color scheme for annotations in YAML format." 
          )
 ):
     """
     Open the image viewer with images from the current directory.
     """
     directory = os.getcwd()
+    
+    if not col_scheme:
+        col_scheme = os.path.join(directory,".gwel", "colour_scheme.yaml")
+    path = col_scheme
+
+    if os.path.exists(path):
+        with open(path, "r") as f:
+            col_scheme_dict = yaml.safe_load(f) or {}
+    else:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        col_scheme_dict = {}
+        with open(path, "w") as f:
+            yaml.safe_dump(col_scheme_dict, f)
+
+
     try:
         dataset = ImageDataset(directory)
         if resized_flag:
@@ -82,7 +98,6 @@ def view(
             dataset.detect()
         if segmentation_flag:
             dataset.segment() 
-        col_scheme_dict = json.loads(col_scheme) 
         viewer = Viewer(dataset,max_pixels = max_pixels,contour_thickness=contour_thickness,col_scheme=col_scheme_dict)
         viewer.index = index - 1
         if detections_flag:
@@ -144,9 +159,8 @@ def detect(model: str = typer.Argument(...,help="Model type"),
 @app.command()
 def segment(model: str = typer.Argument(...,help="Model type"),
             weights: str = typer.Argument(...,help="Path to model weights"), 
-            channels: List[str] = typer.Argument(...,help="Segmentation class labels"), 
+            channels: str = typer.Option(os.path.join(".gwel","channels.yaml"),"--channels","-c", help="Segmentation class channels YAML file"), 
             patch_size:int = typer.Option(256, "--patchsz", "-s", help="Patch size"),
-            background:bool = typer.Option(False, "--background","-b", help="Include background channel")
             ):
     """
     Run a segmenter on the images from the current directory.
@@ -162,10 +176,7 @@ def segment(model: str = typer.Argument(...,help="Model type"),
         else:
             raise ValueError("No weights found at location {weights}.")
         dataset = ImageDataset(directory)
-        if background:
-            dataset.segment(segmenter, background=True)
-        else:   
-            dataset.segment(segmenter)
+        dataset.segment(segmenter)
 
     except ValueError as e:
         # Only print the error message, no traceback
