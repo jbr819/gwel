@@ -295,7 +295,12 @@ class ImageDataset:
             shutil.copy(os.path.join(self.directory,patch_dir,image),os.path.join(dir,image))
 
 
-    def detect(self, detector : Detector = None, use_saved : bool = True, annotations_path : str = None, write : bool = True, threshold = 0.3):
+    def detect(self, detector : Detector = None, 
+               use_saved : bool = True, 
+               annotations_path : str = None,
+               write : bool = True,
+               threshold: float = 0.3,
+               add = False):
         resized_dir = self.resized_directory
         if use_saved == True:
             pre_saved = self.load_object_detections(annotations_path)
@@ -319,18 +324,34 @@ class ImageDataset:
         
         
         detector.threshold = threshold 
-
+        
+        if add:
+            class_names = self.object_detections.get("class_names", {})
+            offset = max(class_names.keys()) + 1 if class_names else 0
+            for cid, name in detector.model.names.items():
+                class_names[cid + offset] = name
+            self.object_detections["class_names"] = class_names
+        else:
+            self.object_detections["class_names"] = detector.model.names
 
         for image_name in tqdm(self.images, desc="Processing images", unit="image"):
-            
-            self.object_detections[image_name]={"image_size": None, "polygons": []}
+            if add: 
+                self.object_detections[image_name]=self.object_detections.get(image_name,{"image_size": None, "polygons": [],"class_id":[]})
+            else:
+                self.object_detections[image_name]= {"image_size": None, "polygons": [],"class_id":[]}
             img = cv2.imread(os.path.join(resized_dir, image_name))
             detected_instances = detector.inference(img) 
             height, width, _ = img.shape
 
             self.object_detections[image_name]["image_size"] = (height, width)
-            for instance in detected_instances:
-                self.object_detections[image_name]["polygons"].append(instance)               
+            for class_id, polygon in detected_instances:
+                self.object_detections[image_name]["polygons"].append(polygon)                
+                if add:
+                    self.object_detections[image_name]["class_id"].append(offset+class_id)               
+                else:
+                    self.object_detections[image_name]["class_id"].append(class_id)               
+
+
         if write: 
             #self.write_object_detections()
             self.write_object_detections(resized=True)
@@ -341,8 +362,8 @@ class ImageDataset:
     def load_object_detections(self, annotations_file :str , write : bool = False, add = False):
         
         if not annotations_file:
-            subdir = self.resized_directory if getattr(self, "resized_directory", "") else hidden_file_name
-            annotations_file = os.path.join(self.directory, subdir, "detections_coco.json")
+            subdir = hidden_file_name #self.resized_directory if getattr(self, "resized_directory", "") else hidden_file_name
+            annotations_file = os.path.join(self.directory, subdir, "detections.json")
         if not os.path.exists(annotations_file):
             return False
 
@@ -350,23 +371,27 @@ class ImageDataset:
             coco_data = json.load(f)
         
         image_info = {image["id"]: (image["file_name"], image["width"], image["height"]) for image in coco_data["images"]}
+        category_info = {cat["id"]:cat["name"] for cat in coco_data["categories"]}
+        self.object_detections["class_names"] = category_info
         
-        if not add:
-            for image_name in self.images: self.object_detections[image_name] = {"image_size": None, "polygons": []}
-        else:
-            for image in coco_data["images"]:  self.object_detections[image["file_name"]] = {"image_size": None, "polygons": []}
+        #if not add:
+        for image_name in self.images: self.object_detections[image_name] = {"image_size": None, "polygons": [], "class_id":[]}
+        #else:
+           # for image in coco_data["images"]:  self.object_detections[image["file_name"]] = {"image_size": None, "polygons": []}
 
          
         for annotation in tqdm(coco_data["annotations"], desc="Loading annotations", unit="annotation"):
             image_id = annotation["image_id"]
             image_name, width, height = image_info[image_id]
             segmentation = annotation["segmentation"]
+            cls_id = annotation["category_id"]
             contours = []
             for segment in segmentation:
                 segment = np.array(segment,dtype=np.int32).reshape(-1, 2)
                 contours.append(segment)
             if image_name in self.images:
                 self.object_detections[image_name]["polygons"].append(contours) 
+                self.object_detections[image_name]["class_id"].append(cls_id)
                 self.object_detections[image_name]["image_size"] = (height, width)
 
         if write:
@@ -375,14 +400,18 @@ class ImageDataset:
         
         return True
   
-    def write_object_detections(self, output_file : str = None, resized : bool = False, overwrite : bool = True, name : str = 'leaf', supercategory : str = 'plant'):
+    def write_object_detections(self, output_file : str = None, resized : bool = False, overwrite : bool = True, supercategory : str = 'object'):
+        if not self.object_detections.get("class_names"):
+            print("No objects detections found.")
+            return
 
         coco_data = {
                 "licenses": [{"name":"","id":0,"url":""}],
                 "info": {"contributor":"","date_created":"","description":"","url":"","version":"","year":""},
                 "images": [],
                 "annotations": [],
-                "categories": [{"id": 1, "name": name, "supercategory": supercategory}]
+                "categories": [{"id": i, "name": n, "supercategory": supercategory} 
+                               for i, n in self.object_detections["class_names"].items() ]
             }
         
         annotation_id = 1
@@ -400,7 +429,7 @@ class ImageDataset:
             })
             
             detections  = self.object_detections.get(image_name, []) 
-            for instance in detections["polygons"]: 
+            for instance, cls_id in zip(detections["polygons"],detections["class_id"]): 
                 segmentation = []
                 all_x, all_y = [], []
 
@@ -429,7 +458,7 @@ class ImageDataset:
                 coco_data["annotations"].append({
                     "id": annotation_id,
                     "image_id": image_id,
-                    "category_id": 1,
+                    "category_id": cls_id,
                     "segmentation": [segmentation],
                     "bbox": [x_min, y_min, width, height],
                     "area": width*height,
@@ -442,10 +471,10 @@ class ImageDataset:
         
         
         if not output_file: 
-            output_file = os.path.join(self.directory,hidden_file_name,"detections_coco.json")
-            resized_dir =  self.resized_directory
+            output_file = os.path.join(self.directory,hidden_file_name,"detections.json")
+            #resized_dir =  self.resized_directory
             #if resized and resized_dir:
-                #output_file = os.path.join(resized_dir ,"detections_coco.json")
+                #output_file = os.path.join(resized_dir ,"detections.json")
         
         if not output_file:
             print('Could not write with no output file defined. For default write locations ensure overwrite = True')
@@ -548,7 +577,7 @@ class ImageDataset:
                 image_id += 1
 
             # Save COCO JSON file
-            with open(os.path.join(output_dir, "detections_coco.json"), 'w') as f:
+            with open(os.path.join(output_dir, "detections.json"), 'w') as f:
                 json.dump(coco_data, f, indent=4)
 
         elif format == "YOLO":

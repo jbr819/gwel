@@ -54,12 +54,17 @@ class YOLOv8(Detector):
     def inference(self, image: np.ndarray):
         if not self.patch_size:
             results = self.model.predict(image,verbose=False, device = self.device)
-            boxes = results[0].boxes.xyxy.cpu().numpy() 
-            detections = boxes.tolist()
-            detections = bbox_to_polygon(detections)
+            boxes = results[0].boxes  # ultralytics Box object
+            for xyxy, cls_id in zip(boxes.xyxy.cpu().numpy(), boxes.cls.cpu().numpy()):
+                polygon = bbox_to_polygon([xyxy])[0]
+                results_list.append((int(cls_id), polygon))
+
+            #boxes = results[0].boxes.xyxy.cpu().numpy() 
+            #detections = boxes.tolist()
+            #detections = bbox_to_polygon(detections)
         else:
-            detections = self.inference_with_patches(patch_size = self.patch_size, image = image)
-        return detections
+            results_list = self.inference_with_patches(patch_size = self.patch_size, image = image)
+        return results_list
     """
     def inference_with_patches(self, patch_size: tuple, image: np.ndarray):
         h, w = image.shape[:2]
@@ -113,6 +118,7 @@ class YOLOv8(Detector):
         )
 
         detections = []
+        class_ids = []
 
         # overlap-aware border margin
         margin_x = int(patch_w * overlap_ratio * border_margin)
@@ -125,9 +131,10 @@ class YOLOv8(Detector):
 
                 boxes = results[0].boxes.xyxy.cpu().numpy()
                 confs = results[0].boxes.conf.cpu().numpy()
+                cls_ids = results[0].boxes.cls.cpu().numpy()  
 
                 
-                for bbox, conf in zip(boxes, confs):
+                for bbox, conf, cls_id in zip(boxes, confs, cls_ids):
                     x1, y1, x2, y2 = bbox
 
                     x1 += j
@@ -148,10 +155,11 @@ class YOLOv8(Detector):
                         continue
 
                     detections.append([x1, y1, x2, y2, conf])
+                    class_ids.append(int(cls_id))
 
 
         if len(detections) == 0:
-            return np.empty((0, 4))
+            return []
 
         detections = torch.tensor(detections, dtype=torch.float32)
         boxes = detections[:, :4]
@@ -159,7 +167,12 @@ class YOLOv8(Detector):
 
         keep_idx = nms(boxes, scores, iou_thresh)
 
-        detections = boxes[keep_idx].cpu().numpy()
+        class_ids = np.array(class_ids)
+        boxes = boxes[keep_idx].cpu().numpy()
+        class_ids = class_ids[keep_idx.cpu().numpy()].astype(int).tolist()
 
-        return bbox_to_polygon(detections)
+        polygons = bbox_to_polygon(boxes)
 
+        results_list = list(zip(class_ids,polygons))
+
+        return results_list
