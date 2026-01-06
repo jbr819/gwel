@@ -9,7 +9,7 @@ from pycocotools import mask as mask_utils
 import yaml
 
 class UNet(nn.Module):
-    def __init__(self, in_channels, out_channels, max_pool : int = 4):
+    def __init__(self, in_channels, out_channels, max_pool : int = 2):
         super(UNet, self).__init__()
 
         # Contracting path (Encoder)
