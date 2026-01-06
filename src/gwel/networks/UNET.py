@@ -47,7 +47,7 @@ class UNet(nn.Module):
     
     def out_layer(self,in_channels,out_channels):
         return nn.Sequential(
-	    nn.ConvTranspose2d(in_channels,out_channels,kernel_size=4,stride = 2,padding=1),
+	    nn.ConvTranspose2d(in_channels,out_channels,kernel_size=self.max_pool,stride = int(self.max_pool/2),padding=1),
 	    nn.Conv2d(out_channels,out_channels,kernel_size=3,padding=1)
         )
 
