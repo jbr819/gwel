@@ -11,6 +11,9 @@ import yaml
 class UNet(nn.Module):
     def __init__(self, in_channels, out_channels, max_pool : int = 2):
         super(UNet, self).__init__()
+        if max_pool % 2 == 1:
+            raise ValueError("max_pool must be even")            
+        self.max_pool = max_pool
 
         # Contracting path (Encoder)
         self.encoder1 = self.conv_block(in_channels, 64)
@@ -23,10 +26,7 @@ class UNet(nn.Module):
         self.decoder3 = self.upconv_block(256, 128)
         self.decoder2 = self.upconv_block(128, 64)
         self.decoder1 = self.out_layer(64, out_channels)
-        if max_pool % 2 == 1:
-            raise ValueError("max_pool must be even")            
-        self.max_pool = max_pool
-
+        
 
     def conv_block(self, in_channels, out_channels):
         return nn.Sequential(
