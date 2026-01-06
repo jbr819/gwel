@@ -20,7 +20,7 @@ def train(model, dataloader, criterion, optimizer, device, epoch, num_classes):
     iou_fp = torch.zeros(num_classes, device=device)
     iou_fn = torch.zeros(num_classes, device=device)
 
-    for images, masks in dataloader:
+    for images, masks in tqdm(dataloader):
         images = images.to(device)
         masks = masks.to(device).long()   # [N, H, W]
 
