@@ -9,7 +9,7 @@ from pycocotools import mask as mask_utils
 import yaml
 
 class UNet(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, max_pool : int = 4):
         super(UNet, self).__init__()
 
         # Contracting path (Encoder)
@@ -23,6 +23,9 @@ class UNet(nn.Module):
         self.decoder3 = self.upconv_block(256, 128)
         self.decoder2 = self.upconv_block(128, 64)
         self.decoder1 = self.out_layer(64, out_channels)
+        if max_pool % 2 == 1:
+            raise ValueError("max_pool must be even")            
+        self.max_pool = max_pool
 
 
     def conv_block(self, in_channels, out_channels):
@@ -31,12 +34,12 @@ class UNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=4,stride=2,padding=1)
+            nn.MaxPool2d(kernel_size=self.max_pool,stride=self.max_pool/2,padding=1)
         )
 
     def upconv_block(self, in_channels, out_channels):
         return nn.Sequential(
-            nn.ConvTranspose2d(in_channels, out_channels, kernel_size=4, stride=2,padding=1),
+            nn.ConvTranspose2d(in_channels, out_channels, kernel_size=self.max_pool, stride=self.max_pool/2,padding=1),
             nn.ReLU(inplace=True),
 	    nn.Conv2d(out_channels,out_channels,kernel_size=3,padding=1),
             nn.ReLU(inplace=True)

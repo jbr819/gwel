@@ -53,11 +53,12 @@ class YOLOv8(Detector):
      
     def inference(self, image: np.ndarray):
         if not self.patch_size:
+            results_list = []
             results = self.model.predict(image,verbose=False, device = self.device)
             boxes = results[0].boxes  # ultralytics Box object
-            for xyxy, cls_id in zip(boxes.xyxy.cpu().numpy(), boxes.cls.cpu().numpy()):
+            for xyxy, cls_id, score in zip(boxes.xyxy.cpu().numpy(), boxes.cls.cpu().numpy(), boxes.conf.cpu().numpy()):
                 polygon = bbox_to_polygon([xyxy])[0]
-                results_list.append((int(cls_id), polygon))
+                results_list.append((int(cls_id), polygon, score))
 
             #boxes = results[0].boxes.xyxy.cpu().numpy() 
             #detections = boxes.tolist()
@@ -170,9 +171,11 @@ class YOLOv8(Detector):
         class_ids = np.array(class_ids)
         boxes = boxes[keep_idx].cpu().numpy()
         class_ids = class_ids[keep_idx.cpu().numpy()].astype(int).tolist()
+        scores = scores[keep_idx.cpu().numpy()].tolist()
+
 
         polygons = bbox_to_polygon(boxes)
 
-        results_list = list(zip(class_ids,polygons))
+        results_list = list(zip(class_ids,polygons,scores))
 
         return results_list

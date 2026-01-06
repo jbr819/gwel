@@ -336,16 +336,17 @@ class ImageDataset:
 
         for image_name in tqdm(self.images, desc="Processing images", unit="image"):
             if add: 
-                self.object_detections[image_name]=self.object_detections.get(image_name,{"image_size": None, "polygons": [],"class_id":[]})
+                self.object_detections[image_name]=self.object_detections.get(image_name,{"image_size": None, "polygons": [],"class_id":[], "conf":[]})
             else:
-                self.object_detections[image_name]= {"image_size": None, "polygons": [],"class_id":[]}
+                self.object_detections[image_name]= {"image_size": None, "polygons": [],"class_id":[],"conf":[]}
             img = cv2.imread(os.path.join(resized_dir, image_name))
             detected_instances = detector.inference(img) 
             height, width, _ = img.shape
 
             self.object_detections[image_name]["image_size"] = (height, width)
-            for class_id, polygon in detected_instances:
+            for class_id, polygon, score in detected_instances:
                 self.object_detections[image_name]["polygons"].append(polygon)                
+                self.object_detections[image_name]["conf"].append(score)                
                 if add:
                     self.object_detections[image_name]["class_id"].append(offset+class_id)               
                 else:
@@ -375,7 +376,7 @@ class ImageDataset:
         self.object_detections["class_names"] = category_info
         
         #if not add:
-        for image_name in self.images: self.object_detections[image_name] = {"image_size": None, "polygons": [], "class_id":[]}
+        for image_name in self.images: self.object_detections[image_name] = {"image_size": None, "polygons": [], "class_id":[], "conf":[]}
         #else:
            # for image in coco_data["images"]:  self.object_detections[image["file_name"]] = {"image_size": None, "polygons": []}
 
@@ -385,13 +386,26 @@ class ImageDataset:
             image_name, width, height = image_info[image_id]
             segmentation = annotation["segmentation"]
             cls_id = annotation["category_id"]
+            conf = annotation.get("confidence",None)
             contours = []
-            for segment in segmentation:
-                segment = np.array(segment,dtype=np.int32).reshape(-1, 2)
-                contours.append(segment)
+            if isinstance(segmentation,list): #polygons
+                for segment in segmentation:
+                    segment = np.array(segment,dtype=np.int32).reshape(-1, 2)
+                    contours.append(segment)
+            elif isinstance(segmentation,dict) and "counts" in segmentation: #rle (run lenth encoded)
+                mask = maskUtils.decode(segmentation)
+                contours_cv, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                for c in contours_cv:
+                    c = c.reshape(-1, 2)
+                    contours.append(c)
+            else:
+                raise ValueError("Unknown segmentation format")
+
+
             if image_name in self.images:
                 self.object_detections[image_name]["polygons"].append(contours) 
                 self.object_detections[image_name]["class_id"].append(cls_id)
+                self.object_detections[image_name]["conf"].append(conf)
                 self.object_detections[image_name]["image_size"] = (height, width)
 
         if write:
@@ -429,7 +443,7 @@ class ImageDataset:
             })
             
             detections  = self.object_detections.get(image_name, []) 
-            for instance, cls_id in zip(detections["polygons"],detections["class_id"]): 
+            for instance, cls_id, conf in zip(detections["polygons"],detections["class_id"], detections["conf"]): 
                 segmentation = []
                 all_x, all_y = [], []
 
@@ -462,7 +476,8 @@ class ImageDataset:
                     "segmentation": [segmentation],
                     "bbox": [x_min, y_min, width, height],
                     "area": width*height,
-                    "iscrowd": 0
+                    "iscrowd": 0,
+                    "confidence": float(conf) if conf is not None else None
                 })
                 annotation_id += 1
   

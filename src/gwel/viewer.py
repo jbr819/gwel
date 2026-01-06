@@ -20,6 +20,7 @@ class Viewer:
                  col_scheme = {}):
         
         self.max_pixels = max_pixels 
+        self.scale_ratio = 1
         self.contour_thickness = contour_thickness
         self.mode = mode
         self.dataset = dataset
@@ -101,7 +102,7 @@ class Viewer:
     def display_image(self):
         
         height, width = self.image.shape[:2]
-        scale_ratio = min(self.max_pixels / width, self.max_pixels / height, 1)
+        scale_ratio = min(self.max_pixels / width, self.max_pixels / height, self.scale_ratio)
         scaled_image = cv2.resize(self.image, (int(width * scale_ratio), int(height * scale_ratio)), interpolation=cv2.INTER_LINEAR)
 
         bar_height = 40
