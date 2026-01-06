@@ -34,12 +34,12 @@ class UNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=self.max_pool,stride=self.max_pool/2,padding=1)
+            nn.MaxPool2d(kernel_size=self.max_pool,stride=int(self.max_pool/2),padding=1)
         )
 
     def upconv_block(self, in_channels, out_channels):
         return nn.Sequential(
-            nn.ConvTranspose2d(in_channels, out_channels, kernel_size=self.max_pool, stride=self.max_pool/2,padding=1),
+            nn.ConvTranspose2d(in_channels, out_channels, kernel_size=self.max_pool, stride=int(self.max_pool/2),padding=1),
             nn.ReLU(inplace=True),
 	    nn.Conv2d(out_channels,out_channels,kernel_size=3,padding=1),
             nn.ReLU(inplace=True)
