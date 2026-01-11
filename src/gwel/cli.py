@@ -22,6 +22,14 @@ except PackageNotFoundError:
     VERSION = "unknown"
 
 
+ASCII_ART = r"""
+   ______              __
+  / ____/      _____  / /
+ / / __| | /| / / _ \/ / 
+/ /_/ /| |/ |/ /  __/ /  
+\____/ |__/|__/\___/_/   
+                         """
+
 
 @app.callback(invoke_without_command=True)
 def main(
@@ -33,6 +41,8 @@ def main(
     """
     Callback function that runs when 'gwel' is called without a subcommand.
     """
+    print(ASCII_ART)
+
     if version_flag:
         typer.secho(f"GWEL CLI version {VERSION}", fg=typer.colors.GREEN, bold=True)
         raise typer.Exit()
