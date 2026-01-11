@@ -9,3 +9,4 @@ pycocotools
 colorama
 typer
 pyaml
+matplotlib
