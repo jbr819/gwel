@@ -8,4 +8,4 @@ tqdm
 pycocotools
 colorama
 typer
-yaml
+pyaml
