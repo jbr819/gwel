@@ -422,6 +422,7 @@ class ImageDataset:
             #self.write_object_detections()
             self.write_object_detections(resized = True)
         
+        return True 
   
     def write_object_detections(self, output_file : str = None, resized : bool = False, overwrite : bool = True, supercategory : str = 'object'):
         if not self.object_detections.get("class_names"):
