@@ -206,7 +206,7 @@ class Viewer:
 
 
 
-        if self.mode in ("circandseg"): 
+        if self.mode in ("circandseg",): 
 
             if self.image_name in self.dataset.object_detections:
                 self.detections = copy.deepcopy(self.dataset.object_detections[self.image_name])
@@ -241,7 +241,7 @@ class Viewer:
 
                
        
-        if self.mode in ("block"):
+        if self.mode in ("block",):
             if self.image_name in self.dataset.masks and self.image_name in self.dataset.object_detections:
                 self.detections = copy.deepcopy(self.dataset.object_detections[self.image_name])
                 self.class_names = copy.deepcopy(self.dataset.object_detections["class_names"])
