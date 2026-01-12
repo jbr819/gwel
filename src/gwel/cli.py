@@ -41,13 +41,13 @@ def main(
     """
     Callback function that runs when 'gwel' is called without a subcommand.
     """
-    print(ASCII_ART)
 
     if version_flag:
         typer.secho(f"GWEL CLI version {VERSION}", fg=typer.colors.GREEN, bold=True)
         raise typer.Exit()
 
     if ctx.invoked_subcommand is None:
+        print(ASCII_ART)
         typer.secho(f"GWEL CLI version {VERSION}", fg=typer.colors.CYAN, bold=True)
         typer.echo("Available commands:")
 
