@@ -373,19 +373,29 @@ class ImageDataset:
         
         image_info = {image["id"]: (image["file_name"], image["width"], image["height"]) for image in coco_data["images"]}
         category_info = {cat["id"]:cat["name"] for cat in coco_data["categories"]}
-        self.object_detections["class_names"] = category_info
         
-        #if not add:
-        for image_name in self.images: self.object_detections[image_name] = {"image_size": None, "polygons": [], "class_id":[], "conf":[]}
-        #else:
-           # for image in coco_data["images"]:  self.object_detections[image["file_name"]] = {"image_size": None, "polygons": []}
+        if add:
+            class_names = self.object_detections.get("class_names", {})
+            offset = max(class_names.keys()) + 1 if class_names else 0
+            for cid, name in category_info.items():
+                class_names[cid + offset] = name
+            self.object_detections["class_names"] = class_names
+            for image_name in self.images:
+                self.object_detections[image_name]=self.object_detections.get(image_name,{"image_size": None, "polygons": [],"class_id":[], "conf":[]})
+        else:
+            self.object_detections["class_names"] = category_info
+            for image_name in self.images:
+                self.object_detections[image_name]= {"image_size": None, "polygons": [],"class_id":[],"conf":[]}
 
          
         for annotation in tqdm(coco_data["annotations"], desc="Loading annotations", unit="annotation"):
             image_id = annotation["image_id"]
             image_name, width, height = image_info[image_id]
             segmentation = annotation["segmentation"]
-            cls_id = annotation["category_id"]
+            if add:
+                cls_id = annotation["category_id"] + offset
+            else:    
+                cls_id = annotation["category_id"]
             conf = annotation.get("confidence",None)
             contours = []
             if isinstance(segmentation,list): #polygons
@@ -412,7 +422,6 @@ class ImageDataset:
             #self.write_object_detections()
             self.write_object_detections(resized = True)
         
-        return True
   
     def write_object_detections(self, output_file : str = None, resized : bool = False, overwrite : bool = True, supercategory : str = 'object'):
         if not self.object_detections.get("class_names"):

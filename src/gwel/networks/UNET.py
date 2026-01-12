@@ -9,7 +9,7 @@ from pycocotools import mask as mask_utils
 import yaml
 
 class UNet(nn.Module):
-    def __init__(self, in_channels, out_channels, max_pool : int = 2):
+    def __init__(self, in_channels, out_channels, max_pool : int = 4):
         super(UNet, self).__init__()
         if max_pool % 2 == 1:
             raise ValueError("max_pool must be even")            
