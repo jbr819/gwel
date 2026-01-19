@@ -31,7 +31,7 @@ def bbox_to_polygon(bboxes):
 class YOLOv8(Detector):
 
     def __init__(self, weights: str , device: str = "cpu", patch_size: tuple = None):
-        self.threshold = 0.5
+        self.threshold = 0.1
         self.patch_size = patch_size
         self.device = device
         if weights:

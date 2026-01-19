@@ -3,9 +3,11 @@ import os
 import json
 import yaml
 import typer
+import pandas as pd
 from typing import List
 from gwel.dataset import ImageDataset
 from gwel.viewer import Viewer
+import numpy as np
 
 
 
@@ -193,7 +195,7 @@ def segment(model: str = typer.Argument(...,help="Model type"),
         typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
 
 @app.command()
-def crop(path: str, object_name : str):
+def crop(path: str = typer.Argument(...,help="Path to output directory.")):
     """
     Crop the images from the current directory based on the bounding boxes of detections.
     """
@@ -201,10 +203,36 @@ def crop(path: str, object_name : str):
     try:
         dataset = ImageDataset(directory)
         dataset.detect()
-        dataset.crop(path,object_name)
+        dataset.crop(path)
     except ValueError as e:
         # Only print the error message, no traceback
         typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
+
+
+@app.command()
+def export(protocol :str =typer.Argument(...,help='Protocol used for export.'),
+           path: str =typer.Argument(...,help='Path to output file or directory.')):
+    """
+    Export dataset according to a predefined protocol.
+    """
+    directory = os.getcwd()
+
+    match protocol:
+        case 'CSV':
+            try:
+                dataset = ImageDataset(directory)
+                dataset.detect()
+                dataset.segment()
+                from gwel.protocols.csv import CSV
+                exporter = CSV(dataset)
+
+            except ValueError as e:
+                typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
+
+    
+    exporter.export(path) 
+
+
 
 
 if __name__ == "__main__":
