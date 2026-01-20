@@ -7,12 +7,15 @@ import subprocess
 import sys
 import torch
 from torchvision.ops import nms
-
-
 import sys
 
 try:
     from ultralytics import YOLO
+    import tempfile, shutil
+    from ultralytics.utils import SETTINGS
+    yolo_tmp = tempfile.mkdtemp(prefix="ultralytics_")
+    SETTINGS["runs_dir"] = yolo_tmp
+
 except ImportError:
     sys.exit("Ultralytics not found. Install with 'pip install ultralytics'.")
 
@@ -54,7 +57,7 @@ class YOLOv8(Detector):
     def inference(self, image: np.ndarray):
         if not self.patch_size:
             results_list = []
-            results = self.model.predict(image,verbose=False, device = self.device)
+            results = self.model.predict(image,verbose=False, device = self.device, save=False)
             boxes = results[0].boxes  # ultralytics Box object
             for xyxy, cls_id, score in zip(boxes.xyxy.cpu().numpy(), boxes.cls.cpu().numpy(), boxes.conf.cpu().numpy()):
                 polygon = bbox_to_polygon([xyxy])[0]
@@ -65,6 +68,8 @@ class YOLOv8(Detector):
             #detections = bbox_to_polygon(detections)
         else:
             results_list = self.inference_with_patches(patch_size = self.patch_size, image = image)
+
+        shutil.rmtree(yolo_tmp, ignore_errors=True)
         return results_list
     """
     def inference_with_patches(self, patch_size: tuple, image: np.ndarray):
@@ -177,5 +182,7 @@ class YOLOv8(Detector):
         polygons = bbox_to_polygon(boxes)
 
         results_list = list(zip(class_ids,polygons,scores))
+
+        shutil.rmtree(yolo_tmp, ignore_errors=True)
 
         return results_list

@@ -195,6 +195,22 @@ def segment(model: str = typer.Argument(...,help="Model type"),
         typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
 
 @app.command()
+def classify(model: str = typer.Argument(...,help="Model type [Supported: QRreader]"),
+            weights: str = typer.Option(None,help="Path to model weights"),
+            multiclass: bool = typer.Option(True,'-m','--multiclass', help="Allow multiple classes per image.")):
+    """
+    Run a classifier on the images in the current directory
+    """
+    directory = os.getcwd()
+    match model:
+        case 'QRreader':
+            dataset = ImageDataset(directory)
+            from gwel.networks.QRreader import QRreader
+            classifier = QRreader(merge= not multiclass)
+            dataset.classify(classifier)
+
+
+@app.command()
 def crop(path: str = typer.Argument(...,help="Path to output directory.")):
     """
     Crop the images from the current directory based on the bounding boxes of detections.
@@ -231,7 +247,6 @@ def export(protocol :str =typer.Argument(...,help='Protocol used for export.'),
 
     
     exporter.export(path) 
-
 
 
 

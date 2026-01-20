@@ -8,7 +8,7 @@ import random
 import json
 import numpy as np
 import pandas as pd
-from gwel.network import Detector, Segmenter 
+from gwel.network import Detector, Segmenter, Classifier 
 import sys
 import os
 from colorama import Fore, Style, init
@@ -55,6 +55,7 @@ class ImageDataset:
         self.annotations = False
         self.factors = {}
         self.warp = {}
+        self.captions = {}
         
         os.makedirs(os.path.join(self.directory, hidden_file_name), exist_ok=True)
 
@@ -784,5 +785,39 @@ class ImageDataset:
             rle["counts"] = rle["counts"].encode("utf-8")  # required for pycocotools
             if image_name in self.images:
                 self.masks[image_name][channel] = rle
+
+    def classify(self, classifier: Classifier, use_saved: bool = True, caption_file:str=None):
+        if use_saved:
+            if not caption_file:
+                caption_file =os.path.join(self.directory,hidden_file_name,'captions.json')
+            if os.path.exists(caption_file):
+                self.load_captions(caption_file)
+                return
+
+        for image_name in tqdm(self.images, desc="Captioning images", unit="image"):
+            img = cv2.imread(os.path.join(self.directory, image_name))
+            caption = classifier.inference(img) 
+            self.captions[image_name] = caption
+
+        self.write_captions()
+
+    def write_captions(self,outputfile :str = None):
+        if not outputfile:
+            outputfile = os.path.join(self.directory,hidden_file_name,'captions.json')
+              
+        with open(outputfile, "w") as f:
+            json.dump(self.captions, f, indent=2)
+
+    def load_captions(self, inputfile:str = None):
+        if not inputfile:
+            inputfile = os.path.join(self.directory,hidden_file_name,'captions.json')
+        try:
+            with open(inputfile, "r") as f:
+                self.captions = json.load(f)
+        except FileNotFoundError:
+            self.captions = {}
+
+              
+
 
 

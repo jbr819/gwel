@@ -32,3 +32,7 @@ class Segmenter(Network,ABC):
 
     #def validate_inference():
 
+class Classifier(Network, ABC):
+    pass
+
+    # def validate_inference():
