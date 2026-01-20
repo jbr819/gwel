@@ -1,5 +1,5 @@
 # Gwel
-The *gwel* Python module provides a framework for handling large image datasets and using neural networks for computer vision tasks in scientific research. The module supports object instance detection and semantic segmentation. The flowchart below outlines the workflows that can be achieved using this module. 
+The *gwel* Python module provides a framework for handling large image datasets and using neural networks for computer vision tasks in scientific research. The module supports object instance detection and semantic segmentation. The flowchart below outlines some of the workflows that can be achieved using this module. 
 
 ![flowchart](flowchart.png)
 
