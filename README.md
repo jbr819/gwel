@@ -77,7 +77,7 @@ gwel view
 For detailed tutorials, visit [the wiki](https://jbr819.github.io/gwel/).
 
 ## Acknowledgments
-This research is funded by the [Biotechnology and Biological Sciences Research Council (BBSRC)](https://www.ukri.org/councils/bbsrc/), part of [UK Research and Innovation (UKRI)](https://www.ukri.org/), through the [FoodBioSystems Doctoral Training Partnership (DTP)](https://research.reading.ac.uk/foodbiosystems/) as part of my PhD project at the [University of Reading](https://www.reading.ac.uk/).
+I created this Python package to facilitate the completion of my PhD research. I was funded by the [Biotechnology and Biological Sciences Research Council (BBSRC)](https://www.ukri.org/councils/bbsrc/), part of [UK Research and Innovation (UKRI)](https://www.ukri.org/), through the [FoodBioSystems Doctoral Training Partnership (DTP)](https://research.reading.ac.uk/foodbiosystems/) as a student at the [University of Reading](https://www.reading.ac.uk/).
 
 
 
