@@ -5,7 +5,6 @@ from collections import Counter
 from tqdm import tqdm
 from pycocotools import mask as mask_utils
 import pandas as pd
-import numpy as np
 
 
 class CSV(Exporter):
@@ -44,6 +43,6 @@ class CSV(Exporter):
 
             df.loc[len(df)] = row
 
-        df.to_csv(path,index=False)
+        df.to_csv(path)
 
 

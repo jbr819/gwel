@@ -15,7 +15,7 @@ from matplotlib import colors as mcolors
 class Viewer:
     def __init__(self, dataset: ImageDataset,
                  mode: Literal['', 'instance', 'segmentation','coordinates'] = ''  ,
-                 max_pixels: int = 800,
+                 max_pixels: int = 1000,
                  contour_thickness: int = 1,
                  col_scheme = {}):
         
@@ -120,6 +120,24 @@ class Viewer:
 
     def style(self):
 
+        if self.mode in ("segmentation","instandseg","circandseg"):
+
+            if self.image_name  in self.dataset.masks:
+
+                rles_dict = self.dataset.masks[self.image_name] 
+
+                for label, rle in rles_dict.items():
+                    mask = mask_utils.decode(rle) 
+                    mask = cv2.resize(mask,(self.image.shape[1],self.image.shape[0]))
+                    contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+                    random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    colour = self.col_scheme.get(label, random_colour)
+                    if colour:
+                        cv2.drawContours(self.image,contours,-1, colour , self.contour_thickness)
+      
+
+
+
         if self.mode in ("instance","instandseg"): 
 
             if self.image_name in self.dataset.object_detections:
@@ -158,21 +176,7 @@ class Viewer:
                             thickness=self.contour_thickness
                         )
 
-        if self.mode in ("segmentation","instandseg","circandseg"):
-
-            if self.image_name  in self.dataset.masks:
-
-                rles_dict = self.dataset.masks[self.image_name] 
-
-                for label, rle in rles_dict.items():
-                    mask = mask_utils.decode(rle) 
-                    mask = cv2.resize(mask,(self.image.shape[1],self.image.shape[0]))
-                    contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                    random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    colour = self.col_scheme.get(label, random_colour)
-                    if colour:
-                        cv2.drawContours(self.image,contours,-1, colour , self.contour_thickness)
-           
+          
         
 
         if self.mode in ("seginstance",):

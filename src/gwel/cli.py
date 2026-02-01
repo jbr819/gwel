@@ -154,6 +154,9 @@ def detect(model: str = typer.Argument(...,help="Model type"),
                     detector = YOLOv8(weights)
                 else:
                     detector = YOLOv8(weights,patch_size=(slice_size,slice_size))
+            elif model == "YOLOv8seg":
+                from gwel.networks.YOLOv8seg import YOLOv8seg
+                detector = YOLOv8seg(weights)
             else:
                 raise ValueError("Model type unknown.")
         else:
@@ -227,7 +230,8 @@ def crop(path: str = typer.Argument(...,help="Path to output directory.")):
 
 @app.command()
 def export(protocol :str =typer.Argument(...,help='Protocol used for export.'),
-           path: str =typer.Argument(...,help='Path to output file or directory.')):
+           path: str =typer.Argument(...,help='Path to output file or directory.'),
+           zipped: bool = typer.Option(False, '-z','--zipped',help='Export as a zipped file')):
     """
     Export dataset according to a predefined protocol.
     """
@@ -241,12 +245,41 @@ def export(protocol :str =typer.Argument(...,help='Protocol used for export.'),
                 dataset.segment()
                 from gwel.protocols.csv import CSV
                 exporter = CSV(dataset)
-
+                exporter.export(path) 
+            except ValueError as e:
+                typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
+    
+        case 'YOLO':
+            try:
+                dataset = ImageDataset(directory)
+                dataset.detect()
+                from gwel.protocols.yolo import yolo_exporter
+                exporter = yolo_exporter(dataset,zipped=zipped)
+                exporter.export(path) 
             except ValueError as e:
                 typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
 
+        case 'SEGPOLYS':
+            try:
+                dataset = ImageDataset(directory)
+                dataset.segment()
+                dataset.write_segmentation(output_file=path,polys=True)
+
+            except ValueError as e:
+                typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
+        case 'SLICE':
+            try:
+                dataset = ImageDataset(directory)
+                slice_size = int(input("Slice size (square):"))
+                dataset.slice(slice_size,path)
+            except ValueError as e:
+                typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
+
+
+
     
-    exporter.export(path) 
+
+
 
 
 

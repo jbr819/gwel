@@ -210,7 +210,7 @@ class ImageDataset:
         images_list = self._get_image_list(self.directory)
         
         if os.path.exists(directory):
-            choice = input("This directory already exists. Do you want to continue and use it anyway? (y/n): ").strip().lower()
+            choice = input("This directory already exists. Do you want to continue and write into it anyway? (y/n): ").strip().lower()
             if choice != 'y':
                 print("Sampling cancelled.")
                 return
@@ -337,9 +337,9 @@ class ImageDataset:
 
         for image_name in tqdm(self.images, desc="Processing images", unit="image"):
             if add: 
-                self.object_detections[image_name]=self.object_detections.get(image_name,{"image_size": None, "polygons": [],"class_id":[], "conf":[]})
+                self.object_detections[image_name]=self.object_detections.get(image_name,{"image_size": None, "polygons": [],"class_id":[], "conf":[],"bbox":[]})
             else:
-                self.object_detections[image_name]= {"image_size": None, "polygons": [],"class_id":[],"conf":[]}
+                self.object_detections[image_name]= {"image_size": None, "polygons": [],"class_id":[],"conf":[], "bbox":[]}
             img = cv2.imread(os.path.join(resized_dir, image_name))
             detected_instances = detector.inference(img) 
             height, width, _ = img.shape
@@ -377,22 +377,23 @@ class ImageDataset:
         
         if add:
             class_names = self.object_detections.get("class_names", {})
-            offset = max(class_names.keys()) + 1 if class_names else 0
+            offset = max(class_names.keys()) if class_names else 0
             for cid, name in category_info.items():
                 class_names[cid + offset] = name
             self.object_detections["class_names"] = class_names
             for image_name in self.images:
-                self.object_detections[image_name]=self.object_detections.get(image_name,{"image_size": None, "polygons": [],"class_id":[], "conf":[]})
+                self.object_detections[image_name]=self.object_detections.get(image_name,{"image_size": None, "polygons": [],"class_id":[], "conf":[], "bbox":[]})
         else:
             self.object_detections["class_names"] = category_info
             for image_name in self.images:
-                self.object_detections[image_name]= {"image_size": None, "polygons": [],"class_id":[],"conf":[]}
+                self.object_detections[image_name]= {"image_size": None, "polygons": [],"class_id":[],"conf":[], "bbox":[]}
 
          
         for annotation in tqdm(coco_data["annotations"], desc="Loading annotations", unit="annotation"):
             image_id = annotation["image_id"]
             image_name, width, height = image_info[image_id]
             segmentation = annotation["segmentation"]
+            bbox = annotation["bbox"]
             if add:
                 cls_id = annotation["category_id"] + offset
             else:    
@@ -415,6 +416,7 @@ class ImageDataset:
 
             if image_name in self.images:
                 self.object_detections[image_name]["polygons"].append(contours) 
+                self.object_detections[image_name]["bbox"].append(bbox) 
                 self.object_detections[image_name]["class_id"].append(cls_id)
                 self.object_detections[image_name]["conf"].append(conf)
                 self.object_detections[image_name]["image_size"] = (height, width)
@@ -444,7 +446,9 @@ class ImageDataset:
 
         for image_name in tqdm(self.images, desc="Writing COCO annotations", unit="image"):
             
-            width, height = self.resized_image_sizes[image_name] if resized else self.image_sizes[image_name]
+            detections  = self.object_detections.get(image_name, []) 
+
+            width, height = detections['image_size']
 
             coco_data["images"].append({
                 "id": image_id,
@@ -452,8 +456,7 @@ class ImageDataset:
                 "height": width,
                 "width": height
             })
-            
-            detections  = self.object_detections.get(image_name, []) 
+
             for instance, cls_id, conf in zip(detections["polygons"],detections["class_id"], detections["conf"]): 
                 segmentation = []
                 all_x, all_y = [], []
@@ -687,7 +690,7 @@ class ImageDataset:
                 "contributor": "",
                 "date_created": today
             },
-            "licenses": [],
+            "licenses": [{"name":"","id":0,"url":""}],
             "images": [],
             "annotations": [],
             "categories": categories
@@ -732,7 +735,7 @@ class ImageDataset:
                          simplified_polygons.append(simplified_coords) 
                      polygons = []
                      for contour in simplified_polygons:
-                        contour = contour.reshape(-1, 2)
+                        contour = contour.reshape(-1, 2).astype(int)
                         if len(contour) >= 3:  # Needs at least 3 points to form a polygon
                              polygon = contour.flatten().tolist()
                              polygons.append(polygon)
@@ -745,8 +748,8 @@ class ImageDataset:
                     "image_id": image_id,
                     "category_id": n+1,  
                     "segmentation": segmentation, 
-                    "bbox": maskUtils.toBbox(rle).tolist(),
-                    "iscrowd": 1 
+                    "bbox": maskUtils.toBbox(rle).astype(int).tolist(),
+                    "iscrowd": 0 
                 })
 
                 annotation_id += 1
@@ -817,7 +820,34 @@ class ImageDataset:
         except FileNotFoundError:
             self.captions = {}
 
-              
+    def slice(self, slice_size:int, output_dir: str):
+        os.makedirs(output_dir,exist_ok=True)
+        print('Slicing images...')
+        for image_name in tqdm(self.images):
+            img_path = os.path.join(self.directory, image_name)
+            img = cv2.imread(img_path)
+            if img is None:
+                print(f"Failed to load {img_path}")
+                return
+            h, w = img.shape[:2]
+            new_h = ((h + slice_size - 1) // slice_size) * slice_size
+            new_w = ((w + slice_size - 1) // slice_size) * slice_size
+            pad_top = (new_h - h) // 2
+            pad_bottom = new_h - h - pad_top
+            pad_left = (new_w - w) // 2
+            pad_right = new_w - w - pad_left
+            img = cv2.copyMakeBorder(img, pad_top, pad_bottom, pad_left, pad_right,cv2.BORDER_CONSTANT, value=[0,0,0])
+            h, w = img.shape[:2]
+            basename = os.path.splitext(os.path.basename(img_path))[0]
+            from itertools import product
+
+            # Instead of nested loops
+            for i, j in product(range(0, h, slice_size), range(0, w, slice_size)):
+                    slice_img = img[i:i+slice_size, j:j+slice_size]
+                    cv2.imwrite(os.path.join(output_dir, f"{basename}_{i}_{j}.png"), slice_img)
+
+
+                
 
 
 

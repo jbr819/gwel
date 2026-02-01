@@ -71,36 +71,7 @@ class YOLOv8(Detector):
 
         shutil.rmtree(yolo_tmp, ignore_errors=True)
         return results_list
-    """
-    def inference_with_patches(self, patch_size: tuple, image: np.ndarray):
-        h, w = image.shape[:2]
-        patch_h, patch_w = patch_size
-        pad_h = (patch_h - h % patch_h) % patch_h
-        pad_w = (patch_w - w % patch_w) % patch_w
-        
-        padded_image = cv2.copyMakeBorder(image, 0, pad_h, 0, pad_w, cv2.BORDER_CONSTANT, value=(0, 0, 0))
-        detections = []
 
-        for i in range(0, padded_image.shape[0], patch_h):
-            for j in range(0, padded_image.shape[1], patch_w):
-                patch = padded_image[i:i + patch_h, j:j + patch_w] 
-                results = self.model.predict(patch, verbose=False)
-                boxes = results[0].boxes.xyxy.cpu().numpy()
-                for bbox in boxes:
-                    x1, y1, x2, y2 = bbox
-                    x1 += j 
-                    y1 += i  
-                    x2 += j
-                    y2 += i
-
-                    x1, y1 = max(0, x1), max(0, y1)
-                    x2, y2 = min(w, x2), min(h, y2)
-
-                    detections.append([x1, y1, x2, y2])
-
-
-        return bbox_to_polygon(detections)
-    """
     def inference_with_patches(
         self,
         patch_size: tuple,
