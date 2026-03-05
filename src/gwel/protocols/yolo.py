@@ -38,38 +38,36 @@ class yolo_exporter(Exporter):
                 label_path = path / "labels" / split / f"{image_name.split('.')[0]}.txt"
 
                 detections = self.dataset.object_detections.get(image_name)
-                if not detections.get('image_size', None):
-                    continue
-
-                
-                img_h, img_w = detections["image_size"]
+                if detections.get('image_size', None):
+                    
+                    img_h, img_w = detections["image_size"]
 
 
-                with open(label_path, "w") as f:
-                    if bbox:
-                            for box, class_id in zip(detections["bbox"], detections["class_id"]):
-                                x_min, y_min, w_box, h_box = box
-                                x_center = (x_min + w_box / 2) / img_w
-                                y_center = (y_min + h_box / 2) / img_h
-                                w_norm = w_box / img_w
-                                h_norm = h_box / img_h
+                    with open(label_path, "w") as f:
+                        if bbox:
+                                for box, class_id in zip(detections["bbox"], detections["class_id"]):
+                                    x_min, y_min, w_box, h_box = box
+                                    x_center = (x_min + w_box / 2) / img_w
+                                    y_center = (y_min + h_box / 2) / img_h
+                                    w_norm = w_box / img_w
+                                    h_norm = h_box / img_h
 
-                                f.write(f"{class_id-1} {x_center:.6f} {y_center:.6f} {w_norm:.6f} {h_norm:.6f}\n")
+                                    f.write(f"{class_id-1} {x_center:.6f} {y_center:.6f} {w_norm:.6f} {h_norm:.6f}\n")
 
-                    else:
-                        for poly_group, class_id in zip(
-                            detections["polygons"],
-                            detections["class_id"]
-                        ):
-                            polygon = poly_group[0]
+                        else:
+                            for poly_group, class_id in zip(
+                                detections["polygons"],
+                                detections["class_id"]
+                            ):
+                                polygon = poly_group[0]
 
-                            coords = []
-                            for x, y in polygon:
-                                coords.append(x / img_w)
-                                coords.append(y / img_h)
+                                coords = []
+                                for x, y in polygon:
+                                    coords.append(x / img_w)
+                                    coords.append(y / img_h)
 
-                            coords_str = " ".join(f"{c:.6f}" for c in coords)
-                            f.write(f"{class_id-1} {coords_str}\n")
+                                coords_str = " ".join(f"{c:.6f}" for c in coords)
+                                f.write(f"{class_id-1} {coords_str}\n")
 
                 shutil.copy(
                     image_name,
