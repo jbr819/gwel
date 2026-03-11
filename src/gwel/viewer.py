@@ -49,18 +49,10 @@ class Viewer:
             print(f"Warning: Unable to read image {self.image_name}.")
             return False
             
-    def open(self):
-
-        while True:
-            self.load_image() 
-            self.style() 
-            self.display_image()
-           
-            key = cv2.waitKey(0)
-        
-            if key == ord('q'):  # Quit the viewer
-                break
-            elif key == ord('p'):  # previous image
+    
+    def keymap(self, key):
+            
+            if key == ord('p'):  # previous image
                 self.index = max(self.index - 1,0)
             elif key == ord('n'):  # next image
                 self.index = min (self.index + 1 , self.total_images-1)  
@@ -83,11 +75,13 @@ class Viewer:
                 self.mode = "circandseg"
             elif key == ord("6"):
                 self.mode = "block"
+            elif key == ord("7"):
+                self.mode = "interiorblock"
             elif key == ord("0"):
                 self.mode = ""
             elif key == ord("w"):
                 p = input("Enter output path (leave blank for default): ").strip()
-                d = os.path.expanduser(self.dataset.directory + "/.gwel/saves") if not p else os.path.dirname(os.path.abspath(p))
+                d = os.path.expanduser(os.path.join(self.dataset.directory,'.gwel','saves')) if not p else os.path.dirname(os.path.abspath(p))
                 os.makedirs(d, exist_ok=True)
                 if not p:
                     i = 1
@@ -96,6 +90,20 @@ class Viewer:
                 else: p = os.path.abspath(p)
                 try: self.save(p); print(f"Saved to {p}")
                 except Exception as e: print(f"Error saving: {e}")
+
+
+    def open(self):
+
+        while True:
+            self.load_image() 
+            self.style() 
+            self.display_image()
+           
+            key = cv2.waitKey(0) 
+            if key == ord('q'):
+                break
+            else:
+                self.keymap(key)
 
         cv2.destroyAllWindows()
 
@@ -285,7 +293,37 @@ class Viewer:
                         center = (x + w // 2, y + h // 2)
                         axes = (w // 2, h // 2)
                         cv2.ellipse(self.image, center, axes, 0, 0, 360, colour, -1)
-                        
+        
+        if self.mode in ("interiorblock",): 
+            if self.image_name in self.dataset.masks and self.image_name in self.dataset.object_detections:
+
+                rles_dict = self.dataset.masks[self.image_name] 
+                rles = list(rles_dict.values())
+                 
+                instance_mask = np.ones(self.image.shape[:2], dtype=np.uint8)
+                 
+                if self.image_name in self.dataset.object_detections:
+                    self.detections = copy.deepcopy(self.dataset.object_detections[self.image_name])
+                    W, H = self.detections['image_size']
+                    instance_mask = np.zeros((W,H), dtype = np.uint8)
+                    for contours in self.detections['polygons']:
+                        cv2.drawContours(instance_mask, contours, contourIdx=-1, color=255, thickness=cv2.FILLED)
+                    instance_mask = cv2.resize(instance_mask,(self.image.shape[1],self.image.shape[0]))
+
+                rles_dict = self.dataset.masks[self.image_name] 
+
+                for label, rle in rles_dict.items():
+                    mask = mask_utils.decode(rle)
+                    mask = cv2.resize(mask, (self.image.shape[1], self.image.shape[0]))
+                    mask = mask * instance_mask
+                    contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+                    random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    colour = self.col_scheme.get(label, random_colour)
+                    if colour:
+                        cv2.drawContours(self.image, contours, -1, colour, cv2.FILLED)
+
+
+                
     def save(self, output_path):
         self.load_image() 
         self.style() 

@@ -165,7 +165,7 @@ class ImageDataset:
         self.flagged = []
 
 
-    def flip(self, flipped_directory=''):
+    def flip(self, flipped_directory='',quarter: bool = False):
         response = input("Are you sure you want to flip the currently flagged images? "
                      "Saved annotations may not be flipped if not loaded and saved after flip (y/n): ").strip().lower()
 
@@ -178,14 +178,20 @@ class ImageDataset:
         for image in self.flagged:
             image_path = os.path.join(self.directory, image)
             img = cv2.imread(image_path)
-            img_flipped =cv2.rotate(img,cv2.ROTATE_180)
+            if quarter:
+                img_flipped =cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
+            else:
+                img_flipped =cv2.rotate(img,cv2.ROTATE_180)
             image_flipped_path = os.path.join(self.directory,flipped_directory,image)
             cv2.imwrite(image_flipped_path,img_flipped)
             if self.resized_directory:
                 if os.path.exists(os.path.join(self.resized_images_directory,image)): 
                     image_path = os.path.join(self.resized_images_directory,image)
                     img = cv2.imread(image_path)
-                    img_flipped =cv2.rotate(img,cv2.ROTATE_180)
+                    if quarter:
+                        img_flipped =cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
+                    else:
+                        img_flipped =cv2.rotate(img,cv2.ROTATE_180)
                     image_flipped_path = os.path.join(self.directory,self.resized_images_directory,image)
                     if not flipped_directory:
                         cv2.imwrite(image_flipped_path,img_flipped)
@@ -469,7 +475,7 @@ class ImageDataset:
                     xs, ys = zip(*polygon)             # now works
                     segment = polygon.flatten().astype(int).tolist()
                     #else:
-                     #   print(annotation_id)
+                     #   print(annotation_iddata)
                       #  print(len(polygon))
                        # segment = [int(v) for v in polygon]
                         #xs, ys = segment[::2], segment[1::2]
@@ -501,9 +507,9 @@ class ImageDataset:
         
         if not output_file: 
             output_file = os.path.join(self.directory,hidden_file_name,"detections.json")
-            #resized_dir =  self.resized_directory
-            #if resized and resized_dir:
-                #output_file = os.path.join(resized_dir ,"detections.json")
+            resized_dir =  self.resized_directory
+            if resized and resized_dir:
+                output_file = os.path.join(resized_dir ,"detections.json")
         
         if not output_file:
             print('Could not write with no output file defined. For default write locations ensure overwrite = True')
