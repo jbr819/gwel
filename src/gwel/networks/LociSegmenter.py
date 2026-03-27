@@ -23,8 +23,8 @@ class LociSegmenter(Segmenter):
     def inference(self, image : np.ndarray):
  
         #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        H=image.shape[0]
-        W=image.shape[1]
+        H = image.shape[0]
+        W = image.shape[1]
         objects = self.detector.inference(image)
 
         points = np.zeros((H, W), dtype=np.float32)

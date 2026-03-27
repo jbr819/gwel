@@ -406,7 +406,7 @@ class ImageDataset:
                 cls_id = annotation["category_id"]
             conf = annotation.get("confidence",None)
             contours = []
-            if isinstance(segmentation,list): #polygons
+            if isinstance(segmentation,list) and len(segmentation) >0: #polygons
                 for segment in segmentation:
                     segment = np.array(segment,dtype=np.int32).reshape(-1, 2)
                     contours.append(segment)
@@ -416,6 +416,16 @@ class ImageDataset:
                 for c in contours_cv:
                     c = c.reshape(-1, 2)
                     contours.append(c)
+            elif isinstance(segmentation, list) and len(segmentation) == 0:  # empty segmentation
+                x, y, w, h = bbox
+                rect_contour = np.array([
+                    [x, y],
+                    [x + w, y],
+                    [x + w, y + h],
+                    [x, y + h]
+                ], dtype=np.int32)
+                contours.append(rect_contour)
+                print(rect_contour)
             else:
                 raise ValueError("Unknown segmentation format")
 
@@ -720,6 +730,8 @@ class ImageDataset:
 
             masks = self.masks.get(image_name, [])
             for n, channel in enumerate(self.masks['channels']):
+                if channel not in masks:
+                    continue
                 rle = masks[channel]
                 rle['counts'] = rle['counts'].decode('utf-8')
                 if rle['counts'] == 'Pfb\\1':
@@ -781,6 +793,8 @@ class ImageDataset:
 
         image_info = {image["id"]: image["file_name"] for image in coco_data["images"]}
         self.masks = {'channels': list(id_to_channel.values())}
+        
+        print(self.masks['channels'])
 
         for image_name in self.images:
             self.masks[image_name] = {}

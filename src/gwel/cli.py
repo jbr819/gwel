@@ -274,6 +274,17 @@ def export(protocol :str =typer.Argument(...,help='Protocol used for export.'),
                 dataset.slice(slice_size,path)
             except ValueError as e:
                 typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
+        case 'LOCI':
+            try:
+                dataset = ImageDataset(directory)
+                dataset.detect()
+                dataset.segment()
+                from gwel.protocols.loci import LOCI
+                exporter = LOCI(dataset)
+                exporter.export('test')
+            except ValueError as e:
+                typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
+                
 
 
 
