@@ -18,22 +18,26 @@ class yolo_exporter(Exporter):
         path: str,
         bbox: bool = True,
         val_split: float = 0.1,
-        seed: int = 42,
+        test_split: float = 0.1,
+        seed: int = 42
     ):
 
         random.seed(seed)
         path = Path(path)
 
-        for split in ["train", "val"]:
+        for split in ["train", "val", "test"]:
             (path / "images" / split).mkdir(parents=True, exist_ok=True)
             (path / "labels" / split).mkdir(parents=True, exist_ok=True)
         image_paths = list(self.dataset.images)
         random.shuffle(image_paths)
 
-        split_idx = int(len(image_paths) * (1 - val_split))
-        train_images = image_paths[:split_idx]
-        val_images = image_paths[split_idx:]
-        for split, images in [("train", train_images), ("val", val_images)]:
+        split_idx_train = int(len(image_paths) * (1 - val_split - test_split))
+        split_idx_valid = int(len(image_paths) * (1-val_split))
+        train_images = image_paths[:split_idx_train]
+        val_images = image_paths[split_idx_train:split_idx_valid]
+        test_images = image_paths[split_idx_valid:]                      
+
+        for split, images in [("train", train_images), ("val", val_images),("test", test_images)]:
             for image_name in images:
                 label_path = path / "labels" / split / f"{image_name.split('.')[0]}.txt"
 
@@ -79,6 +83,7 @@ class yolo_exporter(Exporter):
         yaml_data = {
             "train": "images/train",
             "val": "images/val",
+            "test":"images/test",
             "nc": len(class_names),
             "names": [class_names[i+1] for i in range(len(class_names))]
         }

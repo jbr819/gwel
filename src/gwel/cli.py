@@ -231,7 +231,8 @@ def crop(path: str = typer.Argument(...,help="Path to output directory.")):
 @app.command()
 def export(protocol :str =typer.Argument(...,help='Protocol used for export.'),
            path: str =typer.Argument(...,help='Path to output file or directory.'),
-           zipped: bool = typer.Option(False, '-z','--zipped',help='Export as a zipped file')):
+           zipped: bool = typer.Option(False, '-z','--zipped',help='Export as a zipped file'),
+           seed: int = typer.Option(123,'-s','--seed', help='Random seed used for randomising train, validation and test sets.') ):
     """
     Export dataset according to a predefined protocol.
     """

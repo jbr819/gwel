@@ -394,10 +394,10 @@ class ImageDataset:
             for image_name in self.images:
                 self.object_detections[image_name]= {"image_size": None, "polygons": [],"class_id":[],"conf":[], "bbox":[]}
 
-         
         for annotation in tqdm(coco_data["annotations"], desc="Loading annotations", unit="annotation"):
             image_id = annotation["image_id"]
             image_name, width, height = image_info[image_id]
+            image_name = os.path.basename(image_name)
             segmentation = annotation["segmentation"]
             bbox = annotation["bbox"]
             if add:
@@ -429,7 +429,6 @@ class ImageDataset:
             else:
                 raise ValueError("Unknown segmentation format")
 
-
             if image_name in self.images:
                 self.object_detections[image_name]["polygons"].append(contours) 
                 self.object_detections[image_name]["bbox"].append(bbox) 
@@ -438,7 +437,7 @@ class ImageDataset:
                 self.object_detections[image_name]["image_size"] = (height, width)
 
         if write:
-            #self.write_object_detections()
+            self.write_object_detections()
             self.write_object_detections(resized = True)
         
         return True 
@@ -453,7 +452,7 @@ class ImageDataset:
                 "info": {"contributor":"","date_created":"","description":"","url":"","version":"","year":""},
                 "images": [],
                 "annotations": [],
-                "categories": [{"id": i, "name": n, "supercategory": supercategory} 
+                "categories": [{"id": i + 1, "name": n, "supercategory": supercategory} 
                                for i, n in self.object_detections["class_names"].items() ]
             }
         
@@ -463,7 +462,9 @@ class ImageDataset:
         for image_name in tqdm(self.images, desc="Writing COCO annotations", unit="image"):
             
             detections  = self.object_detections.get(image_name, []) 
-
+            
+            if not detections['image_size']:
+                continue
             width, height = detections['image_size']
 
             coco_data["images"].append({
@@ -502,7 +503,7 @@ class ImageDataset:
                 coco_data["annotations"].append({
                     "id": annotation_id,
                     "image_id": image_id,
-                    "category_id": cls_id,
+                    "category_id": cls_id + 1,
                     "segmentation": [segmentation],
                     "bbox": [x_min, y_min, width, height],
                     "area": width*height,
