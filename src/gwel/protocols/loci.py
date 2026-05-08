@@ -11,18 +11,15 @@ class LOCI(Exporter):
     def __init__(self, dataset: ImageDataset):
             self.dataset = dataset
 
-    def export(self,path: str):
+    def export(self,path: str = None):
                         
         if self.dataset.object_detections:
             object_class_dict = self.dataset.object_detections['class_names']
-            print(object_class_dict)
         if self.dataset.masks:
             mask_channels = self.dataset.masks['channels']
-            print(mask_channels) 
 
         for object_class in object_class_dict.values():
             mask_channels.append(object_class + '_loci')
-            print(mask_channels)
 
         
         for image in tqdm(self.dataset.images):
@@ -61,8 +58,12 @@ class LOCI(Exporter):
 
                 rle = mask_utils.encode(np.asfortranarray(loci_mask.astype(np.uint8)))
                 self.dataset.masks[image][object_class_dict[cls_id]+'_loci'] = rle
-
-        self.dataset.write_segmentation(output_file='.gwel/masks-loci.json')
+                
+        
+        if not path:
+            output_file = '.gwel/masks-loci.json'
+        
+        self.dataset.write_segmentation(output_file)
         
 
 
