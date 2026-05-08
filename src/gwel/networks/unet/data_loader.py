@@ -59,8 +59,9 @@ class CocoSegmentationDataset(Dataset):
         target = np.zeros((image.height, image.width), dtype=np.uint8)
 
         # Loop over categories
-        for catIdx, _ in enumerate(self.categories):  
-            ann_ids = self.coco.getAnnIds(imgIds=[img_id], catIds=[catIdx+1])
+        for catIdx, catName in enumerate(self.categories):  
+            cat_id = self.coco.getCatIds(catNms=[catName])
+            ann_ids = self.coco.getAnnIds(imgIds=[img_id], catIds=cat_id)
             annotations = self.coco.loadAnns(ann_ids)
 
             mask = np.zeros((image.height, image.width), dtype=np.uint8)

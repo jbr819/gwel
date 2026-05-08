@@ -9,11 +9,12 @@ from pycocotools import mask as mask_utils
 import yaml
 
 class UNet(nn.Module):
-    def __init__(self, in_channels, out_channels, max_pool : int = 4):
+    def __init__(self, in_channels, out_channels, max_pool : int = 2):
         super(UNet, self).__init__()
         if max_pool % 2 == 1:
             raise ValueError("max_pool must be even")            
         self.max_pool = max_pool
+        self.stride =  2
 
         # Contracting path (Encoder)
         self.encoder1 = self.conv_block(in_channels, 64)
@@ -34,12 +35,12 @@ class UNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=self.max_pool,stride=int(self.max_pool/2),padding=1)
+            nn.MaxPool2d(kernel_size=self.max_pool,stride=self.stride)
         )
 
     def upconv_block(self, in_channels, out_channels):
         return nn.Sequential(
-            nn.ConvTranspose2d(in_channels, out_channels, kernel_size=self.max_pool, stride=int(self.max_pool/2),padding=1),
+            nn.ConvTranspose2d(in_channels, out_channels, kernel_size=self.max_pool, stride=self.stride),
             nn.ReLU(inplace=True),
 	    nn.Conv2d(out_channels,out_channels,kernel_size=3,padding=1),
             nn.ReLU(inplace=True)
@@ -47,8 +48,8 @@ class UNet(nn.Module):
     
     def out_layer(self,in_channels,out_channels):
         return nn.Sequential(
-	    nn.ConvTranspose2d(in_channels,out_channels,kernel_size=self.max_pool,stride = int(self.max_pool/2),padding=1),
-	    nn.Conv2d(out_channels,out_channels,kernel_size=3,padding=1)
+	    nn.ConvTranspose2d(in_channels,out_channels,kernel_size=self.max_pool,stride = self.stride,padding=1),
+	    nn.Conv2d(out_channels,out_channels,kernel_size=3,padding=2)
         )
 
     def forward(self, x):

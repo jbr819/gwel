@@ -530,12 +530,13 @@ class ImageDataset:
             json.dump(coco_data, f, indent=4)
 	
         
-    def crop(self, output_directory: str):
+    def crop(self, output_directory: str, union = False):
         if os.path.exists(output_directory):
             print(f'The directory {output_directory} already exists.')
         os.makedirs(output_directory, exist_ok=True)
         self.object_images_directory = output_directory  # Keep a record of the output directory
         print("Cropping...")
+
         
         for image_name in tqdm(self.object_detections.keys(), desc="Cropping Objects", unit="Image"):
             img_path = os.path.join(self.directory, image_name)
@@ -545,20 +546,51 @@ class ImageDataset:
             img = cv2.imread(img_path)
             detections = self.object_detections[image_name]
             W, H = detections['image_size']
-            class_dict = self.object_detections['class_names']
-            for n, (contours, cls_id) in enumerate(zip(detections['polygons'],detections['class_id'])):
-                instance_mask = np.zeros((W,H), dtype = np.uint8)
-                cv2.drawContours(instance_mask, contours, contourIdx=-1, color=255, thickness=cv2.FILLED)
-                instance_mask = cv2.resize(instance_mask,(img.shape[1],img.shape[0]))
-                rescaled_contours, _ = cv2.findContours(instance_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-                x, y, w, h = cv2.boundingRect(rescaled_contours[0])
-                x_min, x_max = x , x+w
-                y_min, y_max = y , y+h
-                cropped_img = img[int(y_min):int(y_max), int(x_min):int(x_max)]
-                class_name = class_dict[cls_id]
-           
-                cv2.imwrite(os.path.join(output_directory, f"{os.path.splitext(image_name)[0]}_{class_name}_{n+1}.jpg"), cropped_img)
+            if not union:
+                class_dict = self.object_detections['class_names']
+                for n, (contours, cls_id) in enumerate(zip(detections['polygons'],detections['class_id'])):
+                    instance_mask = np.zeros((W,H), dtype = np.uint8)
+                    cv2.drawContours(instance_mask, contours, contourIdx=-1, color=255, thickness=cv2.FILLED)
+                    instance_mask = cv2.resize(instance_mask,(img.shape[1],img.shape[0]))
+                    rescaled_contours, _ = cv2.findContours(instance_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+                    if not rescaled_contours:
+                        continue
+                    x, y, w, h = cv2.boundingRect(rescaled_contours[0])
+                    x_min, x_max = x , x+w
+                    y_min, y_max = y , y+h
+                    cropped_img = img[int(y_min):int(y_max), int(x_min):int(x_max)]
+                    class_name = class_dict[cls_id]
             
+                    cv2.imwrite(os.path.join(output_directory, f"{os.path.splitext(image_name)[0]}_{class_name}_{n+1}.jpg"), cropped_img)
+            else:
+                # Compute union bbox
+                x_min_all, y_min_all = W, H
+                x_max_all, y_max_all = 0, 0
+
+                for contours in detections['polygons']:
+                    mask = np.zeros((H, W), dtype=np.uint8)
+                    cv2.drawContours(mask, contours, -1, 255, cv2.FILLED)
+                    res_contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+                    if not res_contours:
+                        continue
+                    x, y, w, h = cv2.boundingRect(res_contours[0])
+                    x_min_all = min(x_min_all, x)
+                    y_min_all = min(y_min_all, y)
+                    x_max_all = max(x_max_all, x+w)
+                    y_max_all = max(y_max_all, y+h)
+
+                pad_x = int((x_max_all - x_min_all) * 0.05)
+                pad_y = int((y_max_all - y_min_all) * 0.05)
+
+                x_min_all = max(0, x_min_all - pad_x)
+                y_min_all = max(0, y_min_all - pad_y)
+                x_max_all = min(W, x_max_all + pad_x)
+                y_max_all = min(H, y_max_all + pad_y)
+
+                cropped_img = img[y_min_all:y_max_all, x_min_all:x_max_all]
+                cv2.imwrite(os.path.join(output_directory, f"{os.path.splitext(image_name)[0]}_global_crop.jpg"), cropped_img)
+            
+
         return ImageDataset(output_directory)
 
     

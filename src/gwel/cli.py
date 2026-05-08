@@ -214,7 +214,8 @@ def classify(model: str = typer.Argument(...,help="Model type [Supported: QRread
 
 
 @app.command()
-def crop(path: str = typer.Argument(...,help="Path to output directory.")):
+def crop(path: str = typer.Argument(...,help="Path to output directory."),
+         union: bool = typer.Option(False, '-u','--union',help='Crop union of objects (on) or individual objects (off).')):
     """
     Crop the images from the current directory based on the bounding boxes of detections.
     """
@@ -222,7 +223,7 @@ def crop(path: str = typer.Argument(...,help="Path to output directory.")):
     try:
         dataset = ImageDataset(directory)
         dataset.detect()
-        dataset.crop(path)
+        dataset.crop(path, union=union)
     except ValueError as e:
         # Only print the error message, no traceback
         typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)

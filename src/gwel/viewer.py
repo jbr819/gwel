@@ -152,7 +152,6 @@ class Viewer:
 
                 self.detections = copy.deepcopy(self.dataset.object_detections[self.image_name])
                 self.class_names = copy.deepcopy(self.dataset.object_detections["class_names"])
-                
                 if self.detections['image_size']:     
                    
                     H, W = self.detections['image_size']
