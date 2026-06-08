@@ -86,6 +86,7 @@ class ImageDataset:
             image_sizes[image_name] = [height, width]
         return image_sizes
 
+
     def _check_image(self, image_name):
         """Check if a single image can be read."""
         img_path = os.path.join(self.directory, image_name)
@@ -106,6 +107,18 @@ class ImageDataset:
         if problematic_images:
             print("Warning: Unable to read the following images:")
             print("\n".join(f"- {img}" for img in problematic_images))
+
+    def _get_image_dates(self):
+        dates = []
+        for img_name in tqdm(self.images, desc="Getting dates", unit="img"):
+            try:
+                exif = Image.open(os.path.join(self.directory, img_name)).getexif()
+                dates.append(exif.get(36867))  # DateTimeOriginal
+            except:
+                dates.append(None)
+        return dates
+
+
 
     def _print_status(self, condition, message):
         """Helper function to print the status with appropriate colors."""
@@ -307,7 +320,8 @@ class ImageDataset:
                annotations_path : str = None,
                write : bool = True,
                threshold: float = 0.3,
-               add = False):
+               add = False,
+               bbox_only = False):
         resized_dir = self.resized_directory
         if use_saved == True:
             pre_saved = self.load_object_detections(annotations_path)
@@ -334,12 +348,12 @@ class ImageDataset:
         
         if add:
             class_names = self.object_detections.get("class_names", {})
-            offset = max(class_names.keys()) + 1 if class_names else 0
+            offset = max(class_names.keys()) if class_names else 0
             for cid, name in detector.model.names.items():
-                class_names[cid + offset] = name
+                class_names[cid + offset+1] = name
             self.object_detections["class_names"] = class_names
         else:
-            self.object_detections["class_names"] = detector.model.names
+            self.object_detections["class_names"] = {k + 1: v for k, v in detector.model.names.items()}
 
         for image_name in tqdm(self.images, desc="Processing images", unit="image"):
             if add: 
@@ -361,8 +375,8 @@ class ImageDataset:
 
 
         if write: 
-            #self.write_object_detections()
-            self.write_object_detections(resized=True)
+            self.write_object_detections(bbox_only=bbox_only)
+            self.write_object_detections(resized=True, bbox_only=bbox_only)
 
 
 
@@ -398,8 +412,19 @@ class ImageDataset:
             image_id = annotation["image_id"]
             image_name, width, height = image_info[image_id]
             image_name = os.path.basename(image_name)
-            segmentation = annotation["segmentation"]
+            segmentation = annotation.get("segmentation")
             bbox = annotation["bbox"]
+
+            if not segmentation:
+                x, y, w, h = bbox
+
+                segmentation = [[
+                    x, y,
+                    x, y + h,
+                    x + w, y + h,
+                    x + w, y
+                ]]
+
             if add:
                 cls_id = annotation["category_id"] + offset
             else:    
@@ -442,7 +467,7 @@ class ImageDataset:
         
         return True 
   
-    def write_object_detections(self, output_file : str = None, resized : bool = False, overwrite : bool = True, supercategory : str = 'object'):
+    def write_object_detections(self, output_file : str = None, resized : bool = False, overwrite : bool = True, supercategory : str = 'object', bbox_only: bool =False):
         if not self.object_detections.get("class_names"):
             print("No objects detections found.")
             return
@@ -452,7 +477,7 @@ class ImageDataset:
                 "info": {"contributor":"","date_created":"","description":"","url":"","version":"","year":""},
                 "images": [],
                 "annotations": [],
-                "categories": [{"id": i + 1, "name": n, "supercategory": supercategory} 
+                "categories": [{"id": i, "name": n, "supercategory": supercategory} 
                                for i, n in self.object_detections["class_names"].items() ]
             }
         
@@ -499,17 +524,32 @@ class ImageDataset:
 
                 x_min, y_min = int(min(all_x)), int(min(all_y))
                 width, height = int(max(all_x)-x_min), int(max(all_y)-y_min)
+                
+                if bbox_only:
+                    coco_data["annotations"].append({
+                        "id": annotation_id,
+                        "image_id": image_id,
+                        "category_id": cls_id,
+                        #"segmentation": [segmentation],
+                        "bbox": [x_min, y_min, width, height],
+                        "area": width*height,
+                        "iscrowd": 0,
+                        # "confidence": float(conf) if conf is not None else None
+                    })
+                else:
+                    coco_data["annotations"].append({
+                        "id": annotation_id,
+                        "image_id": image_id,
+                        "category_id": cls_id,
+                        "segmentation": [segmentation],
+                        "bbox": [x_min, y_min, width, height],
+                        "area": width*height,
+                        "iscrowd": 0,
+                        # "confidence": float(conf) if conf is not None else None
+                    })
 
-                coco_data["annotations"].append({
-                    "id": annotation_id,
-                    "image_id": image_id,
-                    "category_id": cls_id + 1,
-                    "segmentation": [segmentation],
-                    "bbox": [x_min, y_min, width, height],
-                    "area": width*height,
-                    "iscrowd": 0,
-                    "confidence": float(conf) if conf is not None else None
-                })
+
+
                 annotation_id += 1
   
             image_id += 1
@@ -838,7 +878,12 @@ class ImageDataset:
             image_name = image_info[image_id]
 
             rle = ann["segmentation"]
-            rle["counts"] = rle["counts"].encode("utf-8")  # required for pycocotools
+
+            if isinstance(rle["counts"], list):
+                from pycocotools import mask as maskUtils
+                rle = maskUtils.frPyObjects(rle, rle["size"][0], rle["size"][1])
+            else:
+                rle["counts"] = rle["counts"].encode("utf-8")  # required for pycocotools
             if image_name in self.images:
                 self.masks[image_name][channel] = rle
 

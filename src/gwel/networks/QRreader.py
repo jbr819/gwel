@@ -14,7 +14,7 @@ class QRreader(Classifier):
     def __init__(self, max_size: int = 1800, merge: bool = True):
         self.qreader=QReader()
         self.max_size = max_size
-        self.merge = merge
+        self.merge = merge # if True will merge read QRs into the longest common substring. 
 
 
     def set_device(self):

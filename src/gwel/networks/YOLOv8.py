@@ -34,7 +34,7 @@ def bbox_to_polygon(bboxes):
 class YOLOv8(Detector):
 
     def __init__(self, weights: str , device: str = "cpu", patch_size: tuple = None):
-        self.threshold = 0.1
+        self.threshold = 0.25
         self.patch_size = patch_size
         self.device = device
         if weights:
@@ -61,7 +61,7 @@ class YOLOv8(Detector):
             boxes = results[0].boxes  # ultralytics Box object
             for xyxy, cls_id, score in zip(boxes.xyxy.cpu().numpy(), boxes.cls.cpu().numpy(), boxes.conf.cpu().numpy()):
                 polygon = bbox_to_polygon([xyxy])[0]
-                results_list.append((int(cls_id), polygon, score))
+                results_list.append((int(cls_id + 1), polygon, score))
 
             #boxes = results[0].boxes.xyxy.cpu().numpy() 
             #detections = boxes.tolist()
@@ -144,7 +144,7 @@ class YOLOv8(Detector):
 
         keep_idx = nms(boxes, scores, iou_thresh)
 
-        class_ids = np.array(class_ids)
+        class_ids = np.array(class_ids) + 1
         boxes = boxes[keep_idx].cpu().numpy()
         class_ids = class_ids[keep_idx.cpu().numpy()].astype(int).tolist()
         scores = scores[keep_idx.cpu().numpy()].tolist()

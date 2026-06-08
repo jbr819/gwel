@@ -253,12 +253,10 @@ class Viewer:
                
        
         if self.mode in ("block",):
-            if self.image_name in self.dataset.masks and self.image_name in self.dataset.object_detections:
-                self.detections = copy.deepcopy(self.dataset.object_detections[self.image_name])
-                self.class_names = copy.deepcopy(self.dataset.object_detections["class_names"])
-     
+            if self.image_name in self.dataset.masks:
                 rles_dict = self.dataset.masks[self.image_name] 
-                for label, rle in rles_dict.items():
+                for label in self.dataset.masks['channels']:
+                    rle = rles_dict[label]
                     mask = mask_utils.decode(rle) 
                     mask = cv2.resize(mask,(self.image.shape[1],self.image.shape[0]))
                     contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -266,6 +264,10 @@ class Viewer:
                     colour = self.col_scheme.get(label, random_colour)
                     if colour:
                         cv2.drawContours(self.image,contours,-1, colour , cv2.FILLED)
+            
+            if self.image_name in self.dataset.object_detections:
+                self.detections = copy.deepcopy(self.dataset.object_detections[self.image_name])
+                self.class_names = copy.deepcopy(self.dataset.object_detections["class_names"])
                 if self.detections['image_size']:     
                     H, W = self.detections['image_size']
                     h_img, w_img = self.image.shape[:2]
@@ -298,28 +300,29 @@ class Viewer:
 
                 rles_dict = self.dataset.masks[self.image_name] 
                 rles = list(rles_dict.values())
-                 
+                
                 instance_mask = np.ones(self.image.shape[:2], dtype=np.uint8)
                  
                 if self.image_name in self.dataset.object_detections:
                     self.detections = copy.deepcopy(self.dataset.object_detections[self.image_name])
-                    W, H = self.detections['image_size']
-                    instance_mask = np.zeros((W,H), dtype = np.uint8)
-                    for contours in self.detections['polygons']:
-                        cv2.drawContours(instance_mask, contours, contourIdx=-1, color=255, thickness=cv2.FILLED)
-                    instance_mask = cv2.resize(instance_mask,(self.image.shape[1],self.image.shape[0]))
+                    if self.detections['image_size']:     
+                        W, H = self.detections['image_size']
+                        instance_mask = np.zeros((W,H), dtype = np.uint8)
+                        for contours in self.detections['polygons']:
+                            cv2.drawContours(instance_mask, contours, contourIdx=-1, color=255, thickness=cv2.FILLED)
+                        instance_mask = cv2.resize(instance_mask,(self.image.shape[1],self.image.shape[0]))
 
-                rles_dict = self.dataset.masks[self.image_name] 
+                        rles_dict = self.dataset.masks[self.image_name] 
 
-                for label, rle in rles_dict.items():
-                    mask = mask_utils.decode(rle)
-                    mask = cv2.resize(mask, (self.image.shape[1], self.image.shape[0]))
-                    mask = mask * instance_mask
-                    contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                    random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    colour = self.col_scheme.get(label, random_colour)
-                    if colour:
-                        cv2.drawContours(self.image, contours, -1, colour, cv2.FILLED)
+                        for label, rle in rles_dict.items():
+                            mask = mask_utils.decode(rle)
+                            mask = cv2.resize(mask, (self.image.shape[1], self.image.shape[0]))
+                            mask = mask * instance_mask
+                            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+                            random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                            colour = self.col_scheme.get(label, random_colour)
+                            if colour:
+                                cv2.drawContours(self.image, contours, -1, colour, cv2.FILLED)
 
 
                 

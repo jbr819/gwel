@@ -140,8 +140,9 @@ def resize(max_pixels: int = typer.Option(
 @app.command()
 def detect(model: str = typer.Argument(...,help="Model type"), 
            weights: str = typer.Argument(...,help="Path to model weights"), 
-           slice_size:int = typer.Option(
-    None, "--slicesz", "-s", help="Slice size")):
+           slice_size:int = typer.Option(None, "--slicesz", "-s", help="Slice size"),
+           add: bool = typer.Option(False,"--add","-a", help="Add detections to current detections. [Default: False]"),
+           bbox_only:bool = typer.Option(False, "--bbox", "-b", help="Bounding boxes only. [Default: False]")):
     """
     Run a detector on the images from the current directory.
     """
@@ -163,7 +164,13 @@ def detect(model: str = typer.Argument(...,help="Model type"),
             raise ValueError("No weights found at location {weights}.")
         dataset = ImageDataset(directory)
         dataset.resize()
-        dataset.detect(detector)
+
+        if add:
+            dataset.load_object_detections(annotations_file=None)
+            dataset.detect(detector,use_saved=False,add=True, bbox_only=bbox_only)
+        else:
+            dataset.detect(detector, bbox_only=bbox_only)
+
     except ValueError as e:
         # Only print the error message, no traceback
         typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
@@ -215,15 +222,38 @@ def classify(model: str = typer.Argument(...,help="Model type [Supported: QRread
 
 @app.command()
 def crop(path: str = typer.Argument(...,help="Path to output directory."),
-         union: bool = typer.Option(False, '-u','--union',help='Crop union of objects (on) or individual objects (off).')):
+         union: bool = typer.Option(False, '-u','--union',help='Crop union of objects (on) or individual objects (off).'),
+         slice: int = typer.Option(None,"--slicesz","-s",help="Slice slize.")):
     """
-    Crop the images from the current directory based on the bounding boxes of detections.
+    Crop the images from the current directory.
+    """
+    directory = os.getcwd()
+    try:
+        if not slice: 
+            dataset = ImageDataset(directory)
+            dataset.detect()
+            dataset.crop(path, union=union)
+        else:
+            dataset = ImageDataset(directory)
+            dataset.slice(slice_size=slice, output_dir=path)
+            
+
+    except ValueError as e:
+        # Only print the error message, no traceback
+        typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
+
+@app.command()
+def sample(path: str = typer.Argument(...,help="Path to output directory."),
+           size: int = typer.Argument(... ,help='Sample size.')):
+    """
+    Sample images from the current directory.
     """
     directory = os.getcwd()
     try:
         dataset = ImageDataset(directory)
-        dataset.detect()
-        dataset.crop(path, union=union)
+        dataset.sample(directory=path, N=size)
+            
+
     except ValueError as e:
         # Only print the error message, no traceback
         typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
