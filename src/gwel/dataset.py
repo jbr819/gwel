@@ -77,13 +77,13 @@ class ImageDataset:
     def _get_image_sizes(self, directory : str):  
         image_sizes = {}
         for image_name in tqdm(self.images, desc="Retriving image sizes", unit="image"):
-            img = Image.open(os.path.join(directory ,image_name))
-            if hasattr(img, '_getexif'):
-                exif = img._getexif()
-                width, height = (img.size[1], img.size[0]) if exif and exif.get(274) in [6, 8] else img.size
-            else:
-                width, height = (img.size[0], img.size[1])    
-            image_sizes[image_name] = [height, width]
+            with Image.open(os.path.join(directory ,image_name)) as img:
+                if hasattr(img, '_getexif'):
+                    exif = img._getexif()
+                    width, height = (img.size[1], img.size[0]) if exif and exif.get(274) in [6, 8] else img.size
+                else:
+                    width, height = (img.size[0], img.size[1])    
+                image_sizes[image_name] = [height, width]
         return image_sizes
 
 
