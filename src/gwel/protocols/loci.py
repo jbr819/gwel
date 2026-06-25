@@ -21,7 +21,7 @@ class LOCI(Exporter):
         for object_class in object_class_dict.values():
             mask_channels.append(object_class + '_loci')
 
-        
+        print('Calculating loci masks...')
         for image in tqdm(self.dataset.images):
             boxes = self.dataset.object_detections[image]['bbox']
             classes = self.dataset.object_detections[image]['class_id']
@@ -51,17 +51,19 @@ class LOCI(Exporter):
                 loci_mask = cv2.morphologyEx(loci_mask, cv2.MORPH_CLOSE, kernel)
                 
                 rles_dict = self.dataset.masks[image] 
-                mask_yellow = mask_utils.decode(rles_dict['unhealthy'])
-                
-                loci_mask = mask_yellow * loci_mask
+                if rles_dict.get('unhealthy',None):
+                    mask_yellow = mask_utils.decode(rles_dict['unhealthy'])
+     
+                    loci_mask = mask_yellow * loci_mask
 
 
                 rle = mask_utils.encode(np.asfortranarray(loci_mask.astype(np.uint8)))
                 self.dataset.masks[image][object_class_dict[cls_id]+'_loci'] = rle
                 
         
-        if not path:
-            output_file = '.gwel/masks-loci.json'
+        #if not path:
+            
+        output_file = '.gwel/masks-loci.json'
         
         self.dataset.write_segmentation(output_file)
         

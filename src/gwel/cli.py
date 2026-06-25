@@ -235,7 +235,10 @@ def crop(path: str = typer.Argument(...,help="Path to output directory."),
             dataset.crop(path, union=union)
         else:
             dataset = ImageDataset(directory)
-            dataset.slice(slice_size=slice, output_dir=path)
+            dataset.detect()
+            from gwel.protocols.slicer import Slicer
+            slicer = Slicer(dataset)
+            slicer.export(slice_size=slice, output_dir=path)
             
 
     except ValueError as e:

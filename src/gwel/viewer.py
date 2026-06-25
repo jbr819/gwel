@@ -256,15 +256,16 @@ class Viewer:
             if self.image_name in self.dataset.masks:
                 rles_dict = self.dataset.masks[self.image_name] 
                 for label in self.dataset.masks['channels']:
-                    rle = rles_dict[label]
-                    mask = mask_utils.decode(rle) 
-                    mask = cv2.resize(mask,(self.image.shape[1],self.image.shape[0]))
-                    contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                    random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    colour = self.col_scheme.get(label, random_colour)
-                    if colour:
-                        cv2.drawContours(self.image,contours,-1, colour , cv2.FILLED)
-            
+                    rle = rles_dict.get(label,None)
+                    if rle:
+                        mask = mask_utils.decode(rle) 
+                        mask = cv2.resize(mask,(self.image.shape[1],self.image.shape[0]))
+                        contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+                        random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                        colour = self.col_scheme.get(label, random_colour)
+                        if colour:
+                            cv2.drawContours(self.image,contours,-1, colour , cv2.FILLED)
+                
             if self.image_name in self.dataset.object_detections:
                 self.detections = copy.deepcopy(self.dataset.object_detections[self.image_name])
                 self.class_names = copy.deepcopy(self.dataset.object_detections["class_names"])
