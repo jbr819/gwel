@@ -182,7 +182,7 @@ def detect(model: str = typer.Argument(...,help="Model type [Supported: YOLO, YO
 @app.command()
 def segment(model: str = typer.Argument(...,help="Model type [Supported: UNET]"),
             weights: str = typer.Argument(...,help="Path to model weights"), 
-            channels: str = typer.Option(os.path.join(".gwel","channels.yaml"),"--channels","-c", help="Segmentation class channels YAML file"), 
+            channels: str = typer.Option(None,"--channels","-c", help="Segmentation class channels YAML file"), 
             patch_size:int = typer.Option(256, "--patchsz", "-s", help="Patch size"),
             ):
     """
@@ -190,14 +190,14 @@ def segment(model: str = typer.Argument(...,help="Model type [Supported: UNET]")
     """
     directory = os.getcwd()
     try:
-        if os.path.exists(weights):
-            if model == "UNET":
-                from gwel.networks.UNET import UNET  
-                segmenter = UNET(weights, patch_size, channels)
-            else:
-                raise ValueError("Model type unknown.")
+      #  if os.path.exists(weights):
+        if model == "UNET":
+            from gwel.networks.UNET import UNET  
+            segmenter = UNET(weights, patch_size, channels)
         else:
-            raise ValueError("No weights found at location {weights}.")
+            raise ValueError("Model type unknown.")
+    # else:
+        #    raise ValueError("No weights found at location {weights}.")
         dataset = ImageDataset(directory)
         dataset.segment(segmenter)
 

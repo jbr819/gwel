@@ -107,7 +107,7 @@ class UNET(Segmenter):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
         self.set_device(self.device)
         self.weights = weights
-        self.load_weights( self.weights)
+        self.load_weights(self.weights)
         self.patch_size = patch_size
         self.centerpad = CenterPad(patch_size)
            
@@ -115,18 +115,33 @@ class UNET(Segmenter):
         self.device = device
         self.model.to(device)
 
-    def load_weights(self, weights : str = None, channels:str = None):
+    def load_weights(self, weights : str, channels : str = None):
         
-
+        if os.path.exists(weights):
+            self.weights = weights
+        else:
+            model_dir = self.download_model(weights)
+            if not model_dir:
+                raise ValueError(f"No weights found at location {weights}.")
+            pth_files = [os.path.join(model_dir, f) for f in os.listdir(model_dir) if f.endswith(".pth")]
+            self.weights = pth_files[0]
+        if not os.path.exists(channels):
+            channels = os.path.join(model_dir,'channels.yaml'))
+            if os.path.exists(channels):
+                self.channels = channels
+            else: 
+                raise ValueError(f"No channels.yaml file found at location {channels}.")
+        else:
+            self.channels = channels
+       
         with open(channels) as f:
             self.channels = yaml.safe_load(f)
         
         raw_channels = list(set().union(*d.values()))
 
-        self.model = UNet(3,len(raw_channels)+1)
-     
+        self.model = UNet(3,len(raw_channels)+1) 
 
-        self.model.load_state_dict(torch.load(weights, map_location=self.device,weights_only=True)['model_state_dict'])
+        self.model.load_state_dict(torch.load(self.weights, map_location=self.device,weights_only=True)['model_state_dict'])
         self.model.eval()
 
 
