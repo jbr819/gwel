@@ -127,14 +127,14 @@ class UNET(Segmenter):
                 raise ValueError(f"No weights found at location {weights}.")
             pth_files = [os.path.join(model_dir, f) for f in os.listdir(model_dir) if f.endswith(".pth")]
             self.weights = pth_files[0]
-        if not os.path.exists(channels):
+        if not channels:
             channels = os.path.join(model_dir,'channels.yaml')
-            if os.path.exists(channels):
-                self.channels = channels
-            else: 
-                raise ValueError(f"No channels.yaml file found at location {channels}.")
-        else:
             self.channels = channels
+        if os.path.exists(channels):
+            self.channels = channels
+        else: 
+            raise ValueError(f"No channels.yaml file found at location {channels}.")
+        
        
         with open(channels) as f:
             self.channels = yaml.safe_load(f)
