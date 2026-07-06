@@ -139,7 +139,7 @@ class UNET(Segmenter):
         with open(channels) as f:
             self.channels = yaml.safe_load(f)
         
-        raw_channels = list(set().union(*d.values()))
+        raw_channels = list(set().union(*self.channels.values()))
 
         self.model = UNet(3,len(raw_channels)+1) 
 
