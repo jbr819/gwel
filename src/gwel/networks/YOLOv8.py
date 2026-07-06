@@ -1,3 +1,6 @@
+
+import sys
+
 try:
     from ultralytics import YOLO
     import tempfile, shutil
@@ -14,10 +17,8 @@ import warnings
 import os
 from gwel.network import Detector
 import subprocess
-import sys
 import torch
 from torchvision.ops import nms
-import sys
 
 
 
