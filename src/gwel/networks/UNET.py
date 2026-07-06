@@ -101,13 +101,14 @@ class CenterPad:
 class UNET(Segmenter):
     def __init__(self,
                  weights : str ,
-                 patch_size : int):
+                 patch_size : int,
+                 channels: str = None):
         
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
         self.set_device(self.device)
         self.weights = weights
-        self.load_weights(self.weights)
+        self.load_weights(self.weights, channels)
         self.patch_size = patch_size
         self.centerpad = CenterPad(patch_size)
            
