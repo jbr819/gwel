@@ -328,15 +328,16 @@ class ImageDataset:
             pre_saved = self.load_object_detections(annotations_path)
             if pre_saved:
                 return
-            else:
-                print("Pre-saved annotations not found.")
+            #else:
+                #print("Pre-saved annotations not found.")
             
             
-        if not resized_dir:
-            print('Try resizing the images first')
-            return
-        else:
-            resized_dir = self.resized_images_directory
+        #if not resized_dir:
+         #   pass
+            #print('Try resizing the images first')
+            #return
+        #else:
+         #   resized_dir = self.resized_images_directory
  
        
         if not detector:
@@ -361,7 +362,10 @@ class ImageDataset:
                 self.object_detections[image_name]=self.object_detections.get(image_name,{"image_size": None, "polygons": [],"class_id":[], "conf":[],"bbox":[]})
             else:
                 self.object_detections[image_name]= {"image_size": None, "polygons": [],"class_id":[],"conf":[], "bbox":[]}
-            img = cv2.imread(os.path.join(resized_dir, image_name))
+            if resized_dir:
+                img = cv2.imread(os.path.join(self.resized_images_directory, image_name))
+            else:
+                img = cv2.imread(os.path.join(self.dirctory,image_name))
             detected_instances = detector.inference(img) 
             height, width, _ = img.shape
 
@@ -579,9 +583,11 @@ class ImageDataset:
         print("Cropping...")
 
         
-        for image_name in tqdm(self.object_detections.keys(), desc="Cropping Objects", unit="Image"):
+        for image_name in tqdm(self.images, desc="Cropping Objects", unit="Image"):
             img_path = os.path.join(self.directory, image_name)
             if not os.path.exists(img_path):
+                continue
+            if not self.object_detections.get(image_name,None):
                 continue
 
             img = cv2.imread(img_path)

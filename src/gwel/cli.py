@@ -141,6 +141,7 @@ def resize(max_pixels: int = typer.Option(
 def detect(model: str = typer.Argument(...,help="Model type [Supported: YOLO, YOLOv8seg] "), 
            weights: str = typer.Argument(...,help="Path to model weights"), 
            slice_size:int = typer.Option(None, "--slicesz", "-s", help="Slice size"),
+           resized_flag: bool = typer.Option(False, "--resized", "-r", help="View resized images."),
            add: bool = typer.Option(False,"--add","-a", help="Add detections to current detections. [Default: False]"),
            bbox_only:bool = typer.Option(False, "--bbox", "-b", help="Bounding boxes only. [Default: False]")):
     """
@@ -163,7 +164,8 @@ def detect(model: str = typer.Argument(...,help="Model type [Supported: YOLO, YO
 #       else:
   #          raise ValueError("No weights found at location {weights}.")
         dataset = ImageDataset(directory)
-        dataset.resize()
+        if resized_flag:
+            dataset.resize()
 
         if add:
             dataset.load_object_detections(annotations_file=None)
