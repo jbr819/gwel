@@ -365,7 +365,7 @@ class ImageDataset:
             if resized_dir:
                 img = cv2.imread(os.path.join(self.resized_images_directory, image_name))
             else:
-                img = cv2.imread(os.path.join(self.dirctory,image_name))
+                img = cv2.imread(os.path.join(self.directory,image_name))
             detected_instances = detector.inference(img) 
             height, width, _ = img.shape
 
