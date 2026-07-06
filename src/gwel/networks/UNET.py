@@ -126,7 +126,7 @@ class UNET(Segmenter):
             pth_files = [os.path.join(model_dir, f) for f in os.listdir(model_dir) if f.endswith(".pth")]
             self.weights = pth_files[0]
         if not os.path.exists(channels):
-            channels = os.path.join(model_dir,'channels.yaml'))
+            channels = os.path.join(model_dir,'channels.yaml')
             if os.path.exists(channels):
                 self.channels = channels
             else: 
