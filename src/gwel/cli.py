@@ -161,8 +161,7 @@ def detect(model: str = typer.Argument(...,help="Model type [Supported: YOLO, YO
             detector = YOLOv8seg(weights)
         else:
             raise ValueError("Model type unknown.")
-#       else:
-  #          raise ValueError("No weights found at location {weights}.")
+
         dataset = ImageDataset(directory)
         if resized_flag:
             dataset.resize()
