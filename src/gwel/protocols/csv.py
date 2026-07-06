@@ -43,6 +43,6 @@ class CSV(Exporter):
 
             df.loc[len(df)] = row
 
-        df.to_csv(path)
+        df.to_csv(path, index= False)
 
 

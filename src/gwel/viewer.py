@@ -91,9 +91,76 @@ class Viewer:
                 try: self.save(p); print(f"Saved to {p}")
                 except Exception as e: print(f"Error saving: {e}")
 
+        
+    
+    def print_controls(self):
+        
+        def key(k):
+            return f"\033[30;47m {k} \033[0m"  # black text on white box
+
+        print("\n┏━━━━━━━━━━ CONTROLS ━━━━━━━━━━┓")
+
+        def section(name):
+            print(f"\n\033[1m{name}\033[0m")
+
+        section("Navigation")
+        print(f"  {key('p')} Previous image")
+        print(f"  {key('n')} Next image")
+
+        section("Actions")
+        print(f"  {key('f')} Toggle flag")
+        print(f"  {key('c')} Toggle colour scheme")
+
+        section("Modes")
+        print(f"  {key('1')} Instance")
+        print(f"  {key('2')} Segmentation")
+        print(f"  {key('3')} Seg + Instance")
+        print(f"  {key('4')} Instance + Seg")
+        print(f"  {key('5')} Circle + Seg")
+        print(f"  {key('6')} Block")
+        print(f"  {key('7')} Interior block")
+        print(f"  {key('0')} Clear")
+
+        section("Export")
+        print(f"  {key('w')} Write image to file")
+
+        print("\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n")
+    
+    
+    def print_col_scheme(self):
+        if self.col_scheme:
+            print('\n   Colour Scheme: \n')
+            def rgb_fg(r, g, b):
+                return f"\033[38;2;{r};{g};{b}m"
+
+            def rgb_bg(r, g, b):
+                return f"\033[48;2;{r};{g};{b}m"
+
+            RESET = "\033[0m"
+
+            for channel, col in self.col_scheme.items():
+                if col is None:
+                    continue
+
+                b, g, r = col
+
+                # color block + text
+                block = rgb_bg(r, g, b) + "   " + RESET
+                label = f"{channel}"
+
+                print(f"  {block}  {label}") 
+            print('\n')
+
+
+
+
 
     def open(self):
 
+        self.print_controls()
+       
+        self.print_col_scheme()
+        
         while True:
             self.load_image() 
             self.style() 

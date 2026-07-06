@@ -138,7 +138,7 @@ def resize(max_pixels: int = typer.Option(
 
 
 @app.command()
-def detect(model: str = typer.Argument(...,help="Model type"), 
+def detect(model: str = typer.Argument(...,help="Model type [Supported: YOLO, YOLOv8seg] "), 
            weights: str = typer.Argument(...,help="Path to model weights"), 
            slice_size:int = typer.Option(None, "--slicesz", "-s", help="Slice size"),
            add: bool = typer.Option(False,"--add","-a", help="Add detections to current detections. [Default: False]"),
@@ -148,20 +148,20 @@ def detect(model: str = typer.Argument(...,help="Model type"),
     """
     directory = os.getcwd()
     try:
-        if os.path.exists(weights):
-            if model == "YOLOv8":
-                from gwel.networks.YOLOv8 import YOLOv8
-                if not slice_size:
-                    detector = YOLOv8(weights)
-                else:
-                    detector = YOLOv8(weights,patch_size=(slice_size,slice_size))
-            elif model == "YOLOv8seg":
-                from gwel.networks.YOLOv8seg import YOLOv8seg
-                detector = YOLOv8seg(weights)
+#        if os.path.exists(weights):
+        if model == "YOLO":
+            from gwel.networks.YOLOv8 import YOLOv8
+            if not slice_size:
+                detector = YOLOv8(weights)
             else:
-                raise ValueError("Model type unknown.")
+                detector = YOLOv8(weights,patch_size=(slice_size,slice_size))
+        elif model == "YOLOv8seg":
+            from gwel.networks.YOLOv8seg import YOLOv8seg
+            detector = YOLOv8seg(weights)
         else:
-            raise ValueError("No weights found at location {weights}.")
+            raise ValueError("Model type unknown.")
+#       else:
+  #          raise ValueError("No weights found at location {weights}.")
         dataset = ImageDataset(directory)
         dataset.resize()
 
@@ -179,7 +179,7 @@ def detect(model: str = typer.Argument(...,help="Model type"),
 
 
 @app.command()
-def segment(model: str = typer.Argument(...,help="Model type"),
+def segment(model: str = typer.Argument(...,help="Model type [Supported: UNET]"),
             weights: str = typer.Argument(...,help="Path to model weights"), 
             channels: str = typer.Option(os.path.join(".gwel","channels.yaml"),"--channels","-c", help="Segmentation class channels YAML file"), 
             patch_size:int = typer.Option(256, "--patchsz", "-s", help="Patch size"),

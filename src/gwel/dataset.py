@@ -14,6 +14,7 @@ import os
 from colorama import Fore, Style, init
 import datetime
 from pycocotools import mask as maskUtils
+import subprocess
 
 # Initialize colorama
 init(autoreset=True)
@@ -634,101 +635,106 @@ class ImageDataset:
         return ImageDataset(output_directory)
 
     
-        
+            
+    """
+        def export_train_data(self, output_dir: str, N: int, format: str = "COCO", include_flagged: bool = True, dataset_name: str = "exported_data"):
+            if format not in ["COCO", "YOLO"]:
+                raise ValueError("Only COCO and YOLO formats are supported.")
 
-    def export_train_data(self, output_dir: str, N: int, format: str = "COCO", include_flagged: bool = True, dataset_name: str = "exported_data"):
-        if format not in ["COCO", "YOLO"]:
-            raise ValueError("Only COCO and YOLO formats are supported.")
+            # Prepare directories for output
+            base_output_dir = os.path.join(output_dir, dataset_name)
+            output_dir = base_output_dir
+            n = 1
+            while os.path.exists(output_dir):
+                output_dir = f"{base_output_dir}_{n}"
+                n += 1
+            os.makedirs(output_dir, exist_ok=True)
 
-        # Prepare directories for output
-        base_output_dir = os.path.join(output_dir, dataset_name)
-        output_dir = base_output_dir
-        n = 1
-        while os.path.exists(output_dir):
-            output_dir = f"{base_output_dir}_{n}"
-            n += 1
-        os.makedirs(output_dir, exist_ok=True)
+            # Select images based on the include_flagged parameter
+            flagged = self.flagged if include_flagged else []
+            remaining = [img for img in self.images if img not in flagged]
+            images_to_export = random.sample(flagged, min(N, len(flagged))) + random.sample(remaining, max(0, N - len(flagged)))
 
-        # Select images based on the include_flagged parameter
-        flagged = self.flagged if include_flagged else []
-        remaining = [img for img in self.images if img not in flagged]
-        images_to_export = random.sample(flagged, min(N, len(flagged))) + random.sample(remaining, max(0, N - len(flagged)))
+            if format == "COCO":
+                coco_data = {
+                    "images": [],
+                    "annotations": [],
+                    "categories": [{"id": 1, "name": "object", "supercategory": "plant"}]
+                }
+                annotation_id = 1
+                image_id = 1
 
-        if format == "COCO":
-            coco_data = {
-                "images": [],
-                "annotations": [],
-                "categories": [{"id": 1, "name": "object", "supercategory": "plant"}]
-            }
-            annotation_id = 1
-            image_id = 1
+                for image_name in tqdm(images_to_export, desc="Preparing COCO annotations", unit="image"):
+                    # Get image size
+                    img_path = os.path.join(self.directory, image_name)
+                    img = Image.open(img_path)
+                    width, height = (img.size[1], img.size[0]) if img._getexif().get(274) in [6, 8] else img.size
 
-            for image_name in tqdm(images_to_export, desc="Preparing COCO annotations", unit="image"):
-                # Get image size
-                img_path = os.path.join(self.directory, image_name)
-                img = Image.open(img_path)
-                width, height = (img.size[1], img.size[0]) if img._getexif().get(274) in [6, 8] else img.size
-
-                # Add image information
-                coco_data["images"].append({
-                    "id": image_id,
-                    "file_name": image_name,
-                    "height": height,
-                    "width": width
-                })
-
-                # Add annotations (bounding boxes)
-                for box in self.object_detections.get(image_name, []):
-                    x1, y1, x2, y2 = map(int, box)  # Get coordinates as integers
-                    width_bbox = x2 - x1
-                    height_bbox = y2 - y1
-
-                    coco_data["annotations"].append({
-                        "id": annotation_id,
-                        "image_id": image_id,
-                        "category_id": 1,  # 'leaf' category ID
-                        "bbox": [x1, y1, width_bbox, height_bbox],  # COCO uses [x, y, width, height]
-                        "area": width_bbox * height_bbox,  # Area of the bounding box
-                        "iscrowd": 0  # 'iscrowd' is 0 for individual instances
+                    # Add image information
+                    coco_data["images"].append({
+                        "id": image_id,
+                        "file_name": image_name,
+                        "height": height,
+                        "width": width
                     })
-                    annotation_id += 1
 
-                image_id += 1
+                    # Add annotations (bounding boxes)
+                    for box in self.object_detections.get(image_name, []):
+                        x1, y1, x2, y2 = map(int, box)  # Get coordinates as integers
+                        width_bbox = x2 - x1
+                        height_bbox = y2 - y1
 
-            # Save COCO JSON file
-            with open(os.path.join(output_dir, "detections.json"), 'w') as f:
-                json.dump(coco_data, f, indent=4)
+                        coco_data["annotations"].append({
+                            "id": annotation_id,
+                            "image_id": image_id,
+                            "category_id": 1,  # 'leaf' category ID
+                            "bbox": [x1, y1, width_bbox, height_bbox],  # COCO uses [x, y, width, height]
+                            "area": width_bbox * height_bbox,  # Area of the bounding box
+                            "iscrowd": 0  # 'iscrowd' is 0 for individual instances
+                        })
+                        annotation_id += 1
 
-        elif format == "YOLO":
-            for image_name in tqdm(images_to_export, desc="Preparing YOLO annotations", unit="image"):
-                # Get image size
-                img_path = os.path.join(self.directory, image_name)
-                img = Image.open(img_path)
-                width, height = (img.siz1e[1], img.size[0]) if img._getexif().get(274) in [6, 8] else img.size
+                    image_id += 1
 
-                # YOLO annotation file
-                yolo_file_path = os.path.join(output_dir, f"{os.path.splitext(image_name)[0]}.txt")
-                with open(yolo_file_path, 'w') as yolo_file:
-                    for box in self.detections.get(image_name, []):
-                        x1, y1, x2, y2 = map(int, box)
+                # Save COCO JSON file
+                with open(os.path.join(output_dir, "detections.json"), 'w') as f:
+                    json.dump(coco_data, f, indent=4)
 
-                        # Convert bbox to YOLO format (class_id, x_center, y_center, bbox_width, bbox_height), normalized
-                        x_center = (x1 + x2) / 2 / width
-                        y_center = (y1 + y2) / 2 / height
-                        bbox_width = (x2 - x1) / width
-                        bbox_height = (y2 - y1) / height
+            elif format == "YOLO":
+                for image_name in tqdm(images_to_export, desc="Preparing YOLO annotations", unit="image"):
+                    # Get image size
+                    img_path = os.path.join(self.directory, image_name)
+                    img = Image.open(img_path)
+                    width, height = (img.siz1e[1], img.size[0]) if img._getexif().get(274) in [6, 8] else img.size
 
-                        # YOLO format: "class_id x_center y_center width height"
-                        yolo_file.write(f"0 {x_center} {y_center} {bbox_width} {bbox_height}\n")  # Assuming 'leaf' has class ID 0
+                    # YOLO annotation file
+                    yolo_file_path = os.path.join(output_dir, f"{os.path.splitext(image_name)[0]}.txt")
+                    with open(yolo_file_path, 'w') as yolo_file:
+                        for box in self.detections.get(image_name, []):
+                            x1, y1, x2, y2 = map(int, box)
 
-        # Copy referenced images with a progress bar
-        for image_name in tqdm(images_to_export, desc="Copying images", unit="image"):
-            shutil.copy(os.path.join(self.directory, image_name), output_dir)
+                            # Convert bbox to YOLO format (class_id, x_center, y_center, bbox_width, bbox_height), normalized
+                            x_center = (x1 + x2) / 2 / width
+                            y_center = (y1 + y2) / 2 / height
+                            bbox_width = (x2 - x1) / width
+                            bbox_height = (y2 - y1) / height
 
-    def object_dataset(self):
-        objects_dir = self.object_images_directory
-        object_dataset = ImageDataset(objects_dir)
-        return object_dataset
+                            # YOLO format: "class_id x_center y_center width height"
+                            yolo_file.write(f"0 {x_center} {y_center} {bbox_width} {bbox_height}\n")  # Assuming 'leaf' has class ID 0
+
+            # Copy referenced images with a progress bar
+            for image_name in tqdm(images_to_export, desc="Copying images", unit="image"):
+                shutil.copy(os.path.join(self.directory, image_name), output_dir)
+
+
+
+        def object_dataset(self):
+            objects_dir = self.object_images_directory
+            object_dataset = ImageDataset(objects_dir)
+            return object_dataset
+
+    """
+
 
     def segment(self, segmenter: Segmenter = None, use_saved = True, masks_file : str = None):
        
@@ -867,7 +873,6 @@ class ImageDataset:
         image_info = {image["id"]: image["file_name"] for image in coco_data["images"]}
         self.masks = {'channels': list(id_to_channel.values())}
         
-        print(self.masks['channels'])
 
         for image_name in self.images:
             self.masks[image_name] = {}
@@ -944,8 +949,25 @@ class ImageDataset:
                     slice_img = img[i:i+slice_size, j:j+slice_size]
                     cv2.imwrite(os.path.join(output_dir, f"{basename}_{i}_{j}.png"), slice_img)
 
+"""
+    def download_model(self, url: str, loc : str = os.path.join('.gwel', 'models')): 
+        model_weights = None
+        if url.startswith('hf'):
+            repo = url.removeprefix('hf:')
+            repo_name = repo.rstrip("/").split("/")[-1]
+            repo_url = "https://huggingface.co/" + repo
+            target_dir = os.join.path(loc, repo_name) 
+            if os.path.exists(target_dir):
+                subprocess.run(["git", "clone", repo_url, target_dir], check=True)
+                files = os.listdir(target_dir)
+                print(files)
+"""
 
-                
+        #return model_weights
+
+
+
+
 
 
 

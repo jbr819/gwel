@@ -101,13 +101,9 @@ class CenterPad:
 class UNET(Segmenter):
     def __init__(self,
                  weights : str ,
-                 patch_size : int,
-                 channels : str):
+                 patch_size : int):
         
-        with open(channels) as f:
-            self.channels = yaml.safe_load(f)
 
-        self.model = UNet(3,len(self.channels)+1)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
         self.set_device(self.device)
         self.weights = weights
@@ -119,7 +115,17 @@ class UNET(Segmenter):
         self.device = device
         self.model.to(device)
 
-    def load_weights(self, weights : str = None):
+    def load_weights(self, weights : str = None, channels:str = None):
+        
+
+        with open(channels) as f:
+            self.channels = yaml.safe_load(f)
+        
+        raw_channels = list(set().union(*d.values()))
+
+        self.model = UNet(3,len(raw_channels)+1)
+     
+
         self.model.load_state_dict(torch.load(weights, map_location=self.device,weights_only=True)['model_state_dict'])
         self.model.eval()
 

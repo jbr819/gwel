@@ -39,7 +39,6 @@ class YOLOv8(Detector):
         self.device = device
         if weights:
             self.load_weights(weights)
-        #self.set_device(device)
 
     def set_device(self, device: str):
         self.device = device
@@ -47,8 +46,16 @@ class YOLOv8(Detector):
             self.model.to(self.device)
 
     def load_weights(self, weights: str):
-        self.weights = weights
-        self.model = YOLO(weights, task = 'detect')
+        if os.path.exists(weights):
+            self.weights = weights
+        else:
+            model_dir = self.download_model(weights)
+            if not model_dir:
+                raise ValueError("No weights found at location {weights}.")
+            pt_files = [os.path.join(model_dir, f) for f in os.listdir(model_dir) if f.endswith(".pt")]
+            self.weights = pt_files[0]
+
+        self.model = YOLO(self.weights, task = 'detect')
         if torch.cuda.is_available():
             device = torch.device('cuda')
             self.model.to(device)
@@ -63,9 +70,6 @@ class YOLOv8(Detector):
                 polygon = bbox_to_polygon([xyxy])[0]
                 results_list.append((int(cls_id + 1), polygon, score))
 
-            #boxes = results[0].boxes.xyxy.cpu().numpy() 
-            #detections = boxes.tolist()
-            #detections = bbox_to_polygon(detections)
         else:
             results_list = self.inference_with_patches(patch_size = self.patch_size, image = image)
 
