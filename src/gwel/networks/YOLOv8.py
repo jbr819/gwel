@@ -1,3 +1,13 @@
+try:
+    from ultralytics import YOLO
+    import tempfile, shutil
+    from ultralytics.utils import SETTINGS
+    yolo_tmp = tempfile.mkdtemp(prefix="ultralytics_")
+    SETTINGS["runs_dir"] = yolo_tmp
+
+except ImportError:
+    sys.exit("Ultralytics not found. Install with 'pip install ultralytics'.")
+
 import numpy as np
 import cv2
 import warnings
@@ -8,16 +18,6 @@ import sys
 import torch
 from torchvision.ops import nms
 import sys
-
-try:
-    from ultralytics import YOLO
-    import tempfile, shutil
-    from ultralytics.utils import SETTINGS
-    yolo_tmp = tempfile.mkdtemp(prefix="ultralytics_")
-    SETTINGS["runs_dir"] = yolo_tmp
-
-except ImportError:
-    sys.exit("Ultralytics not found. Install with 'pip install ultralytics'.")
 
 
 
