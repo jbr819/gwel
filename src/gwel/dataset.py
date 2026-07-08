@@ -365,7 +365,7 @@ class ImageDataset:
             if resized_dir:
                 img = cv2.imread(os.path.join(self.resized_images_directory, image_name))
             else:
-                img = cv2.imread(os.path.join(self.directory,image_name))
+                img = cv2.imread(os.path.join(self.dirdatasetectory,image_name))
             detected_instances = detector.inference(img) 
             height, width, _ = img.shape
 
@@ -847,8 +847,8 @@ class ImageDataset:
                 if channel not in masks:
                     continue
                 rle = masks[channel]
-                rle['counts'] = rle['counts'].decode('utf-8')
-                if rle['counts'] == 'Pfb\\1':
+                rle_decoded = rle['counts'].decode('utf-8')
+                if rle_decoded == 'Pfb\\1':
                     continue
                 if polys:   
                      from shapely.geometry import Polygon
