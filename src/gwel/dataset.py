@@ -320,7 +320,7 @@ class ImageDataset:
                use_saved : bool = True, 
                annotations_path : str = None,
                write : bool = True,
-               threshold: float = 0.3,
+               threshold: float = 0.25,
                add = False,
                bbox_only = False):
         resized_dir = self.resized_directory

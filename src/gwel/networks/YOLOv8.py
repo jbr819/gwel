@@ -65,7 +65,7 @@ class YOLOv8(Detector):
     def inference(self, image: np.ndarray):
         if not self.patch_size:
             results_list = []
-            results = self.model.predict(image,verbose=False, device = self.device, save=False)
+            results = self.model.predict(image,verbose=False, device = self.device, save=False, conf= self.threshold)
             boxes = results[0].boxes  # ultralytics Box object
             for xyxy, cls_id, score in zip(boxes.xyxy.cpu().numpy(), boxes.cls.cpu().numpy(), boxes.conf.cpu().numpy()):
                 polygon = bbox_to_polygon([xyxy])[0]

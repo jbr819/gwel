@@ -141,6 +141,7 @@ def resize(max_pixels: int = typer.Option(
 def detect(model: str = typer.Argument(...,help="Model type [Supported: YOLO, YOLOv8seg] "), 
            weights: str = typer.Argument(...,help="Path to model weights"), 
            slice_size:int = typer.Option(None, "--slicesz", "-s", help="Slice size"),
+           confidence:float = typer.Option(0.25, "--confidence", "-c", help="Confidence threshold [Default: 0.25]."),
            resized_flag: bool = typer.Option(False, "--resized", "-r", help="Detect objects in resized images."),
            add: bool = typer.Option(False,"--add","-a", help="Add detections to current detections. [Default: False]"),
            bbox_only:bool = typer.Option(False, "--bbox", "-b", help="Bounding boxes only. [Default: False]")):
@@ -375,7 +376,7 @@ def export(protocol :str =typer.Argument(...,help='Protocol used for export.'),
                             # If all entries have the same base and only differ by _N
                             if len(numbers) == len(captions) and len(set(bases)) == 1:
                                 # divide by 8 and round down
-                                correct_number = math.floor(numbers[0] / 8) + 1
+                                correct_number = math.floor(numbers[0] / 8)+1
                                 new_name = f"{bases[0]}_{correct_number}"
                             else:
                                 # fallback to first entry
