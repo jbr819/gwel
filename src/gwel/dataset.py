@@ -593,22 +593,51 @@ class ImageDataset:
             img = cv2.imread(img_path)
             detections = self.object_detections[image_name]
             W, H = detections['image_size']
+            
             if not union:
                 class_dict = self.object_detections['class_names']
-                for n, (contours, cls_id) in enumerate(zip(detections['polygons'],detections['class_id'])):
-                    instance_mask = np.zeros((W,H), dtype = np.uint8)
+
+                crops = []
+
+                for contours, cls_id in zip(detections['polygons'], detections['class_id']):
+                    instance_mask = np.zeros((W, H), dtype=np.uint8)
                     cv2.drawContours(instance_mask, contours, contourIdx=-1, color=255, thickness=cv2.FILLED)
-                    instance_mask = cv2.resize(instance_mask,(img.shape[1],img.shape[0]))
-                    rescaled_contours, _ = cv2.findContours(instance_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+                    instance_mask = cv2.resize(instance_mask, (img.shape[1], img.shape[0]))
+
+                    rescaled_contours, _ = cv2.findContours(
+                        instance_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
+                    )
+
                     if not rescaled_contours:
                         continue
+
                     x, y, w, h = cv2.boundingRect(rescaled_contours[0])
-                    x_min, x_max = x , x+w
-                    y_min, y_max = y , y+h
-                    cropped_img = img[int(y_min):int(y_max), int(x_min):int(x_max)]
+
+                    cropped_img = img[y:y+h, x:x+w]
                     class_name = class_dict[cls_id]
-            
-                    cv2.imwrite(os.path.join(output_directory, f"{os.path.splitext(image_name)[0]}_{class_name}_{n+1}.jpg"), cropped_img)
+
+                    # store y position for sorting
+                    crops.append((y, class_name, cropped_img))
+
+                # sort from top to bottom
+                crops.sort(key=lambda x: x[0])
+
+                # save in top-to-bottom order
+                for n, (_, class_name, cropped_img) in enumerate(crops, start=1):
+                    cv2.imwrite(
+                        os.path.join(
+                            output_directory,
+                            f"{os.path.splitext(image_name)[0]}_{class_name}_{n}.jpg"
+                        ),
+                        cropped_img
+                    )
+
+
+
+
+
+
             else:
                 # Compute union bbox
                 x_min_all, y_min_all = W, H

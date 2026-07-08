@@ -208,17 +208,18 @@ def segment(model: str = typer.Argument(...,help="Model type [Supported: UNET]")
 @app.command()
 def classify(model: str = typer.Argument(...,help="Model type [Supported: QRreader]"),
             weights: str = typer.Option(None,help="Path to model weights"),
-            multiclass: bool = typer.Option(True,'-m','--multiclass', help="Allow multiple classes per image.")):
+            multiclass: bool = typer.Option(False,'-m','--multiclass', help="Allow multiple classes per image.")):
     """
     Run a classifier on the images in the current directory
     """
     directory = os.getcwd()
-    match model:
-        case 'QRreader':
+    if model == 'QRreader':
             dataset = ImageDataset(directory)
             from gwel.networks.QRreader import QRreader
             classifier = QRreader(merge= not multiclass)
             dataset.classify(classifier)
+    else: 
+        raise ValueError(f'Model type {model} unknown.')
 
 
 @app.command()
@@ -269,7 +270,13 @@ def export(protocol :str =typer.Argument(...,help='Protocol used for export.'),
            zipped: bool = typer.Option(False, '-z','--zipped',help='Export as a zipped file'),
            seed: int = typer.Option(123,'-s','--seed', help='Random seed used for randomising train, validation and test sets.') ):
     """
-    Export dataset according to a predefined protocol.
+    Export dataset according to a predefined protocol.\n
+    Protocols : \n
+    - CSV (export tabular data as csv)\n
+    - YOLO (export dataset in YOLO format)\n
+    - SLICE (export imgage dataset of slices)\n
+    - LOCI (generate a mask corresponding to the geometric locus of object detections.)\n
+    - RENAME (copy images into a new directory with new names given in dictionary in .json format.)
     """
     directory = os.getcwd()
 
@@ -320,14 +327,75 @@ def export(protocol :str =typer.Argument(...,help='Protocol used for export.'),
                 exporter.export('test')
             except ValueError as e:
                 typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
-                
+        case 'RENAME':
+            import json
+            import shutil
+            import re
+            import math
+            os.makedirs(path, exist_ok=True)
+            json_file = input('Enter the path of to dictionary of new image names in .json format (leave blank for .gwel/captions.json):')
+            if not json_file:
+                json_file = '.gwel/captions.json'
+            
+            if os.path.exists(json_file):
+                with open(json_file, "r") as f:
+                    data = json.load(f)
+            else:
+                raise ValueError(f'Could not find file at {json_file}')
 
+            dataset = ImageDataset(directory)
+            images = dataset.images
+            for image in images:
+                if image in data:
+                    captions = data[image]
+                    if image in data:
+                        captions = data[image]
 
+                        # Determine new_name
+                        if isinstance(captions, str):
+                            new_name = captions
 
-    
+                        elif isinstance(captions, list):
+                            if len(captions) == 0:
+                                print(f"Empty caption list for {image}")
+                                continue
 
+                            # Extract suffix pattern _N at the end
+                            numbers = []
+                            bases = []
 
+                            for item in captions:
+                                match = re.search(r'_(\d+)$', item)
+                                if match:
+                                    numbers.append(int(match.group(1)))
+                                    bases.append(item[:match.start()])
+                                else:
+                                    bases.append(item)
 
+                            # If all entries have the same base and only differ by _N
+                            if len(numbers) == len(captions) and len(set(bases)) == 1:
+                                # divide by 8 and round down
+                                correct_number = math.floor(numbers[0] / 8) + 1
+                                new_name = f"{bases[0]}_{correct_number}"
+                            else:
+                                # fallback to first entry
+                                new_name = captions[0]
+
+                        else:
+                            raise TypeError(f"Unexpected data type for {image}: {type(captions)}")
+
+                    
+                    # Add .png if no file extension is present
+                    if not os.path.splitext(new_name)[1]:
+                        new_name += ".png"
+
+                        shutil.copy(
+                            os.path.join(directory, image),
+                            os.path.join(path, new_name)
+                        )
+                    else:
+                        print(f"No rename entry for {image}")  
+                    
 
 
 if __name__ == "__main__":

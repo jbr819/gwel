@@ -29,7 +29,7 @@ class QRreader(Classifier):
         caption = [QR for QR in QR_data[0] if QR is not None]
 
         caption = [qr for qr in QR_data[0] if qr]
-
+        
         if self.merge and caption:
             caption = longest_common_substring(caption)
             caption = caption.removesuffix("_")
