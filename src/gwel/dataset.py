@@ -847,10 +847,9 @@ class ImageDataset:
                 if channel not in masks:
                     continue
                 rle = masks[channel]
-                counts = rle['counts']
-                if isinstance(counts, bytes):
-                    counts = counts.decode('utf-8')
-                if counts == 'Pfb\\1':
+                if isinstance(rle['counts'], bytes):
+                    rle['counts'] = rle['counts'].decode('utf-8')
+                if rle['counts'] == 'Pfb\\1':
                     continue
                 if polys:   
                      from shapely.geometry import Polygon
