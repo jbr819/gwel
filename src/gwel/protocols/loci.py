@@ -5,6 +5,7 @@ from pycocotools import mask as mask_utils
 from collections import defaultdict
 import numpy as np
 import cv2
+import os
 
 class LOCI(Exporter):
 
