@@ -850,7 +850,7 @@ class ImageDataset:
                 counts = rle['counts']
                 if isinstance(counts, bytes):
                     counts = counts.decode('utf-8')
-                if rle_decoded == 'Pfb\\1':
+                if counts == 'Pfb\\1':
                     continue
                 if polys:   
                      from shapely.geometry import Polygon
