@@ -6,6 +6,7 @@ from collections import defaultdict
 import numpy as np
 import cv2
 import os
+import shutil
 
 class LOCI(Exporter):
 
