@@ -847,7 +847,9 @@ class ImageDataset:
                 if channel not in masks:
                     continue
                 rle = masks[channel]
-                rle_decoded = rle['counts'].decode('utf-8')
+                counts = rle['counts']
+                if isinstance(counts, bytes):
+                    counts = counts.decode('utf-8')
                 if rle_decoded == 'Pfb\\1':
                     continue
                 if polys:   
