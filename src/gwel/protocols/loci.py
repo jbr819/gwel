@@ -61,9 +61,10 @@ class LOCI(Exporter):
                 self.dataset.masks[image][object_class_dict[cls_id]+'_loci'] = rle
                 
         
-        #if not path:
+        output_file = os.path.join('.gwel','masks.json')
+        if os.path.exists(output_file):
+            shutil.copy(output_file,os.path.join('.gwel','masks-og.json'))
             
-        output_file = '.gwel/masks-loci.json'
         
         self.dataset.write_segmentation(output_file)
         
