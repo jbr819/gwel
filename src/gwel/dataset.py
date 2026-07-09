@@ -628,7 +628,7 @@ class ImageDataset:
                     cv2.imwrite(
                         os.path.join(
                             output_directory,
-                            f"{os.path.splitext(image_name)[0]}_{class_name}_{n}.jpg"
+                            f"{os.path.splitext(image_name)[0]}_{class_name}_{n}.png"
                         ),
                         cropped_img
                     )
@@ -664,7 +664,7 @@ class ImageDataset:
                 y_max_all = min(H, y_max_all + pad_y)
 
                 cropped_img = img[y_min_all:y_max_all, x_min_all:x_max_all]
-                cv2.imwrite(os.path.join(output_directory, f"{os.path.splitext(image_name)[0]}_global_crop.jpg"), cropped_img)
+                cv2.imwrite(os.path.join(output_directory, f"{os.path.splitext(image_name)[0]}_global_crop.png"), cropped_img)
             
 
         return ImageDataset(output_directory)
