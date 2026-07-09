@@ -41,7 +41,7 @@ class LOCI(Exporter):
                 coords = class_centers[cls_id]
                 loci_mask =  np.zeros((H, W), dtype=np.float32)
 
-                bandwidth = 40
+                bandwidth = 25
                 kernel_size = 10
 
                 for (i,j) in coords:
