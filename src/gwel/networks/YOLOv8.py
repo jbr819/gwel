@@ -34,7 +34,7 @@ def bbox_to_polygon(bboxes):
 
 class YOLOv8(Detector):
 
-    def __init__(self, weights: str , device: str = "cpu", patch_size: tuple = None):
+    def __init__(self, weights: str , device: str = "cuda", patch_size: tuple = None):
         self.threshold = 0.25
         self.patch_size = patch_size
         self.device = device
@@ -58,7 +58,7 @@ class YOLOv8(Detector):
 
         self.model = YOLO(self.weights, task = 'detect')
         if torch.cuda.is_available():
-            device = torch.device('cuda')
+            self.device = torch.device('cuda')
             self.model.to(device)
         #self.model.to(self.device)
      
