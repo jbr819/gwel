@@ -34,17 +34,22 @@ def bbox_to_polygon(bboxes):
 
 class YOLOv8(Detector):
 
-    def __init__(self, weights: str , device: str = "cuda", patch_size: tuple = None):
+    def __init__(self, weights: str , device: str = "cpu", patch_size: tuple = None):
         self.threshold = 0.25
         self.patch_size = patch_size
         self.device = device
         if weights:
             self.load_weights(weights)
+            self.set_device(device)
 
     def set_device(self, device: str):
         self.device = device
         if hasattr(self, 'model'):
-            self.model.to(self.device)
+            if torch.cuda.is_available():
+                self.device = torch.device('cuda')
+                self.model.to(self.device)
+            else:
+                self.model.to(self.device)
 
     def load_weights(self, weights: str):
         if os.path.exists(weights):
@@ -57,15 +62,11 @@ class YOLOv8(Detector):
             self.weights = pt_files[0]
 
         self.model = YOLO(self.weights, task = 'detect')
-        if torch.cuda.is_available():
-            self.device = torch.device('cuda')
-            self.model.to(device)
-        #self.model.to(self.device)
      
     def inference(self, image: np.ndarray):
         if not self.patch_size:
             results_list = []
-            results = self.model.predict(image,verbose=False, device = self.device, save=False, conf= self.threshold)
+            results = self.model.predict(image,verbose=False, save=False, conf= self.threshold)
             boxes = results[0].boxes  # ultralytics Box object
             for xyxy, cls_id, score in zip(boxes.xyxy.cpu().numpy(), boxes.cls.cpu().numpy(), boxes.conf.cpu().numpy()):
                 polygon = bbox_to_polygon([xyxy])[0]
