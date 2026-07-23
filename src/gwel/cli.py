@@ -329,74 +329,12 @@ def export(protocol :str =typer.Argument(...,help='Protocol used for export.'),
             except ValueError as e:
                 typer.secho(f"Error: {e}", fg=typer.colors.RED, bold=True)
         case 'RENAME':
-            import json
-            import shutil
-            import re
-            import math
-            os.makedirs(path, exist_ok=True)
-            json_file = input('Enter the path of to dictionary of new image names in .json format (leave blank for .gwel/captions.json):')
-            if not json_file:
-                json_file = '.gwel/captions.json'
             
-            if os.path.exists(json_file):
-                with open(json_file, "r") as f:
-                    data = json.load(f)
-            else:
-                raise ValueError(f'Could not find file at {json_file}')
-
             dataset = ImageDataset(directory)
-            images = dataset.images
-            for image in images:
-                if image in data:
-                    captions = data[image]
-                    if image in data:
-                        captions = data[image]
-
-                        # Determine new_name
-                        if isinstance(captions, str):
-                            new_name = captions
-
-                        elif isinstance(captions, list):
-                            if len(captions) == 0:
-                                print(f"Empty caption list for {image}")
-                                continue
-
-                            # Extract suffix pattern _N at the end
-                            numbers = []
-                            bases = []
-
-                            for item in captions:
-                                match = re.search(r'_(\d+)$', item)
-                                if match:
-                                    numbers.append(int(match.group(1)))
-                                    bases.append(item[:match.start()])
-                                else:
-                                    bases.append(item)
-
-                            # If all entries have the same base and only differ by _N
-                            if len(numbers) == len(captions) and len(set(bases)) == 1:
-                                # divide by 8 and round down
-                                correct_number = math.floor(numbers[0] / 8)+1
-                                new_name = f"{bases[0]}_{correct_number}"
-                            else:
-                                # fallback to first entry
-                                new_name = captions[0]
-
-                        else:
-                            raise TypeError(f"Unexpected data type for {image}: {type(captions)}")
-
-                    
-                    # Add .png if no file extension is present
-                    if not os.path.splitext(new_name)[1]:
-                        new_name += ".png"
-
-                        shutil.copy(
-                            os.path.join(directory, image),
-                            os.path.join(path, new_name)
-                        )
-                    else:
-                        print(f"No rename entry for {image}")  
-                    
+            from gwel.protocols.rename import RENAME
+            exporter = RENAME(dataset)
+            exporter.export(path)
+         
 
 
 if __name__ == "__main__":
