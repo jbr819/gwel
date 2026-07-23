@@ -61,7 +61,7 @@ class RENAME(Exporter):
                         # If all entries have the same base and only differ by _N
                         if len(numbers) == len(captions) and len(set(bases)) == 1:
                             # divide by 8 and round down
-                            correct_number = math.floor(numbers[0] / 8)+1
+                            correct_number = math.floor((numbers[0]-1) / 8)+1
                             new_name = f"{bases[0]}_{correct_number}"
                         else:
                             # fallback to first entry
