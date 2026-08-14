@@ -90,8 +90,11 @@ class Viewer:
                 else: p = os.path.abspath(p)
                 try: self.save(p); print(f"Saved to {p}")
                 except Exception as e: print(f"Error saving: {e}")
-
-        
+            elif key == ord("+"):
+                self.max_pixels += 100
+            elif key == ord("-"):
+                if self.max_pixels > 100:
+                    self.max_pixels -= 100
     
     def print_controls(self):
         
@@ -108,9 +111,11 @@ class Viewer:
         print(f"  {key('n')} Next image")
 
         section("Actions")
+        print(f"  {key('+')} Enlarge image")
+        print(f"  {key('-')} Shrink image")
         print(f"  {key('f')} Toggle flag")
         print(f"  {key('c')} Toggle colour scheme")
-
+        
         section("Modes")
         print(f"  {key('1')} Instance")
         print(f"  {key('2')} Segmentation")
@@ -179,6 +184,7 @@ class Viewer:
         
         height, width = self.image.shape[:2]
         scale_ratio = min(self.max_pixels / width, self.max_pixels / height, self.scale_ratio)
+        #scale_ratio = self.max_pixels / width, self.max_pixels / height
         scaled_image = cv2.resize(self.image, (int(width * scale_ratio), int(height * scale_ratio)), interpolation=cv2.INTER_LINEAR)
 
         bar_height = 40
@@ -264,23 +270,24 @@ class Viewer:
                  
                 if self.image_name in self.dataset.object_detections:
                     self.detections = copy.deepcopy(self.dataset.object_detections[self.image_name])
-                    W, H = self.detections['image_size']
-                    instance_mask = np.zeros((W,H), dtype = np.uint8)
-                    for contours in self.detections['polygons']:
-                        cv2.drawContours(instance_mask, contours, contourIdx=-1, color=255, thickness=cv2.FILLED)
-                    instance_mask = cv2.resize(instance_mask,(self.image.shape[1],self.image.shape[0]))
+                    if self.detections['image_size']:
+                        W, H = self.detections['image_size']
+                        instance_mask = np.zeros((W,H), dtype = np.uint8)
+                        for contours in self.detections['polygons']:
+                            cv2.drawContours(instance_mask, contours, contourIdx=-1, color=255, thickness=cv2.FILLED)
+                        instance_mask = cv2.resize(instance_mask,(self.image.shape[1],self.image.shape[0]))
 
-                rles_dict = self.dataset.masks[self.image_name] 
+                        rles_dict = self.dataset.masks[self.image_name] 
 
-                for label, rle in rles_dict.items():
-                    mask = mask_utils.decode(rle)
-                    mask = cv2.resize(mask, (self.image.shape[1], self.image.shape[0]))
-                    mask = mask * instance_mask
-                    contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                    random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    colour = self.col_scheme.get(label, random_colour)
-                    if colour:
-                        cv2.drawContours(self.image, contours, -1, colour, self.contour_thickness)
+                        for label, rle in rles_dict.items():
+                            mask = mask_utils.decode(rle)
+                            mask = cv2.resize(mask, (self.image.shape[1], self.image.shape[0]))
+                            mask = mask * instance_mask
+                            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+                            random_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                            colour = self.col_scheme.get(label, random_colour)
+                            if colour:
+                                cv2.drawContours(self.image, contours, -1, colour, self.contour_thickness)
 
 
 

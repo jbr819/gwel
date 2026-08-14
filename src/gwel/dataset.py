@@ -15,6 +15,7 @@ from colorama import Fore, Style, init
 import datetime
 from pycocotools import mask as maskUtils
 import subprocess
+import struct
 
 # Initialize colorama
 init(autoreset=True)
@@ -73,18 +74,26 @@ class ImageDataset:
         for ext in image_extensions:
             image_paths.extend(glob.glob(os.path.join(directory, ext)))
         return image_paths
+        
+    def get_png_size(self,path):
+        with open(path, "rb") as f:
+            f.seek(16)
+            width, height = struct.unpack(">II", f.read(8))
+        return height, width
     
-
     def _get_image_sizes(self, directory : str):  
         image_sizes = {}
         for image_name in tqdm(self.images, desc="Retriving image sizes", unit="image"):
-            with Image.open(os.path.join(directory ,image_name)) as img:
-                if hasattr(img, '_getexif'):
-                    exif = img._getexif()
-                    width, height = (img.size[1], img.size[0]) if exif and exif.get(274) in [6, 8] else img.size
-                else:
-                    width, height = (img.size[0], img.size[1])    
-                image_sizes[image_name] = [height, width]
+            if image_name.lower().endswith(".png"):
+                height, width = self.get_png_size(os.path.join(directory,image_name))
+            else:
+                with Image.open(os.path.join(directory ,image_name)) as img:
+                    if hasattr(img, '_getexif'):
+                        exif = img._getexif()
+                        width, height = (img.size[1], img.size[0]) if exif and exif.get(274) in [6, 8] else img.size
+                    else:
+                        width, height = (img.size[0], img.size[1])    
+            image_sizes[image_name] = [height, width]
         return image_sizes
 
 
