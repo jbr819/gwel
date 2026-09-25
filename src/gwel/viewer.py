@@ -20,6 +20,7 @@ class Viewer:
                  col_scheme = {}):
         
         self.max_pixels = max_pixels 
+        self.max_pixels_cap = 1e10
         self.scale_ratio = 1
         self.contour_thickness = contour_thickness
         self.mode = mode
@@ -43,6 +44,7 @@ class Viewer:
         self.image_name = self.images[self.index]
         self.image_path = os.path.join(self.directory,self.image_name)
         self.image = cv2.imread(self.image_path)
+        self.max_pixels_cap = np.max(np.shape(self.image))
         self.image_size = self.dataset.image_sizes[self.image_name]
         self.flagged = self.image_name in self.dataset.flagged 
         if self.image is None:
@@ -91,7 +93,8 @@ class Viewer:
                 try: self.save(p); print(f"Saved to {p}")
                 except Exception as e: print(f"Error saving: {e}")
             elif key == ord("+"):
-                self.max_pixels += 100
+                if self.max_pixels < self.max_pixels_cap:
+                    self.max_pixels += 100
             elif key == ord("-"):
                 if self.max_pixels > 100:
                     self.max_pixels -= 100
