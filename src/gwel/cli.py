@@ -250,13 +250,17 @@ def crop(path: str = typer.Argument(...,help="Path to output directory."),
 
 @app.command()
 def sample(path: str = typer.Argument(...,help="Path to output directory."),
-           size: int = typer.Argument(... ,help='Sample size.')):
+           size: int = typer.Argument(... ,help='Sample size.'),
+           flag: bool = typer.Option(False, '-f','--flag',help="Flag images to be included in the sample.")):
     """
     Sample images from the current directory.
     """
     directory = os.getcwd()
     try:
         dataset = ImageDataset(directory)
+        if flag:
+            viewer = Viewer(dataset)
+            viewer.open()
         dataset.sample(directory=path, N=size)
             
 

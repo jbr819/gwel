@@ -254,10 +254,13 @@ class ImageDataset:
       
         if flagged:
             N_flagged = len(self.flagged)
-            if N < N_flagged:
-                print(f'Sample size is less then the number of flagged images. Do you need flagged = False, or set N = {len(self.flagged)}?')
-                return
-            images = random.sample(images_list,N - N_flagged)
+            if N <= N_flagged:
+                if N < N_flagged:
+                    print(f'{len(self.flagged)} images are flagged but the sample size is {N}. Therefore the sample size will be increased to {len(self.flagged)}.')
+                images = [] 
+            else: 
+                images = random.sample(images_list,N - N_flagged)
+            
             images.extend(self.flagged)
         else:
             images = random.sample(images_list, N)
